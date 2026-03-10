@@ -22,11 +22,11 @@ jobs:
           distribution: 'temurin'
           cache: maven  #tu dong cache thu vien de may ao unbuntu cua github nho
 
-      - name: Cap quyen chay file mvnm
-        uses: chmod +x mvnw #cap queyen chay
+      - name: Make mvnw executable
+        run: chmod +x mvnw  # ĐÚNG: dùng 'run' cho câu lệnh shell
 
-      - name: Build and test maven
-        uses: /mvnw clean install #chay lenh buld
+      - name: Build with Maven
+        run: ./mvnw clean install
 
 
 
