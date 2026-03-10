@@ -1,0 +1,33 @@
+name: Java CI with Maven
+
+#Kich ban chay khi nao
+on:
+  push:
+    branches: ["main" , "developer"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest #Chay tren may ao ubuntu moi nhat
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4  #lay code tu repo ve may ao ubuntu
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven  #tu dong cache thu vien de may ao unbuntu cua github nho
+
+      - name: Cap quyen chay file mvnm
+        uses: chmod +x mvnw #cap queyen chay
+
+      - name: Build and test maven
+        uses: /mvnw clean install #chay lenh buld
+
+
+
+
