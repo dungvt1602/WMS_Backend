@@ -1,0 +1,18 @@
+#!/bin/sh
+
+echo "--- DANG KIEM TRA CODE TRUOC KHI COMMIT ---"
+
+# Chạy test Maven
+./mvnw clean install
+
+# Kiểm tra kết quả
+if [ $? -ne 0 ]; then
+    echo "********************************************************"
+    echo " LOI: Code cua ban dang bi loi Build hoac loi Test!"
+    echo " Vui long sua loi truoc khi thuc hien commit."
+    echo "********************************************************"
+    exit 1
+fi
+
+echo "--- KIEM TRA THANH CONG! Dang tien hanh commit... ---"
+exit 0
