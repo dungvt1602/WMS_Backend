@@ -1,0 +1,23 @@
+package com.project.wms.common.exception;
+
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import com.project.wms.common.response.ApiResponse;
+
+/**
+ * Global Exception Handler for the application.
+ * Intercepts RuntimeExceptions and returns a standardized ApiResponse.
+ */
+@RestControllerAdvice // Marks this class as a global error filter for all Controllers
+public class HandleRuntimeException {
+
+    /**
+     * Catches RuntimeException and subclasses (like NullPointerException).
+     * Returns a 500 error code with the exception message in ApiResponse format.
+     */
+    @ExceptionHandler(RuntimeException.class)
+    public ApiResponse<String> handleRuntimeException(RuntimeException e) {
+        return ApiResponse.error(500, e.getMessage());
+    }
+}
