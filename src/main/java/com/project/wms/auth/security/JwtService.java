@@ -17,7 +17,6 @@ public class JwtService {
 
     private static final String SECRET_KEY = "caigicungduocnhungphaitren32kytu_chuoinaoconhieukytusaubanseduatoidaohon";
 
-    @Bean
     public String generateToken(UserDetails userDetails) {
         return Jwts.builder()
                 .subject(userDetails.getUsername()) // để nhận biết người nào
