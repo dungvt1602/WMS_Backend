@@ -16,7 +16,7 @@ jobs:
         image: postgres:15
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: 123
+          POSTGRES_PASSWORD: 0188
           POSTGRES_DB: wms
         ports:
           - 5432:5432
