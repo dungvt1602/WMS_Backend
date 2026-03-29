@@ -12,6 +12,11 @@ import com.project.wms.common.response.ApiResponse;
 @RestControllerAdvice // Marks this class as a global error filter for all Controllers
 public class HandleRuntimeException {
 
+    @ExceptionHandler(JwtAuthenticationException.class)
+    public ApiResponse<String> handleJwtAuthenticationException(JwtAuthenticationException e) {
+        return ApiResponse.error(401, e.getMessage());
+    }
+
     /**
      * Catches RuntimeException and subclasses (like NullPointerException).
      * Returns a 500 error code with the exception message in ApiResponse format.
