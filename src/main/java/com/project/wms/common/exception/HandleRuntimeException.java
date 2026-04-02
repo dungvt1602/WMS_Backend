@@ -25,4 +25,9 @@ public class HandleRuntimeException {
     public ApiResponse<String> handleRuntimeException(RuntimeException e) {
         return ApiResponse.error(500, e.getMessage());
     }
+
+    @ExceptionHandler(UsernameNotFound.class)
+    public ApiResponse<String> handleUsernameNotFoundException(UsernameNotFound e) {
+        return ApiResponse.error(404, "Không tìm thấy Username này");
+    }
 }
