@@ -15,7 +15,7 @@ import javax.crypto.SecretKey;
 @Service
 public class JwtService {
 
-    private static final String SECRET_KEY = "caigicungduocnhungphaitren32kytu_chuoinaoconhieukytusaubanseduatoidaohon";
+    private static final String SECRET_KEY = "YourSuperSecretKeyForWMSProject2026WithoutUnderscores";
 
     public String generateToken(UserDetails userDetails) {
         return Jwts.builder()

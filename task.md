@@ -1,29 +1,30 @@
 # WMS Project Implementation Checklist
 
 - [x] **Phase 1: Core Infrastructure & Shared Setup**
-    - [x] Setup `BaseEntity` with JPA Auditing (`createdAt`, `updatedAt`, `createdBy`, `updatedBy`).
-    - [x] Configure Database Connection (PostgreSQL properties).
-    - [x] Setup Standard API Response wrapper (e.g., `ApiResponse<T>`).
-    - [x] Setup Global Exception Handler (`@RestControllerAdvice`).
-    - [ ] Setup Flyway or Hibernate Auto-DDL for database schema generation.
+    - [x] Setup `BaseEntity` with JPA Auditing.
+    - [x] Configure Database Connection.
+    - [x] Setup Standard API Response wrapper.
+    - [x] Setup Global Exception Handler.
+    - [ ] Setup Flyway or Hibernate Auto-DDL.
 
-- [ ] **Phase 2: Authentication & Authorization (Security)**
-    - [x] Create `User` and `Role` entities in Auth module.
-    - [x] Create `UserRepository` and `RoleRepository`.
-    - [x] Add JWT Dependencies (JJWT) to `pom.xml`.
-    - [x] Implement Spring Security Configuration (`SecurityFilterChain`, CORS, AuthEntryPoint).
-    - [x] Implement JWT Service (Generate, Validate tokens).
-    - [ ] Implement JwtAuthenticationFilter.
-    - [ ] Implement `AuthService` (Login, Register).
-    - [ ] Create `AuthController`.
+- [x] **Phase 2: Authentication & Authorization (Security)**
+    - [x] Create `User` and `Role` entities.
+    - [x] Implement JWT Service and Filter.
+    - [x] Implement `AuthService` and `AuthController`.
 
-- [ ] **Phase 3: Master Data Modules**
-    - [ ] Product Module (CRUD).
-    - [ ] Warehouse Module (CRUD).
+- [x] **Phase 3: Master Data Modules**
+    - [x] Product Module (CRUD).
+    - [x] Warehouse Module (CRUD).
 
-- [ ] **Phase 4: Core Core Modules**
-    - [ ] Inventory Module (Manage Stock, Optimistic Locking `version`).
-    
-- [ ] **Phase 5: Input/Output Modules**
-    - [ ] Inbound Module (Nhập kho).
-    - [ ] Outbound Module (Xuất kho).
+- [x] **Phase 4: Core Inventory Logic**
+    - [x] Inventory Module (add/removeStock).
+    - [x] Optimistic Locking with `@Version`.
+
+- [x] **Phase 5: Inbound & Outbound (Business Flow)**
+    - [x] Create common `OrderStatus` enum.
+    - [x] **Inbound Module** ✅
+    - [x] **Outbound Module** ✅
+        - [x] `OutboundOrder` and `OutboundOrderItem` entities.
+        - [x] DTOs.
+        - [x] `OutboundService`.
+        - [x] `OutboundController`.

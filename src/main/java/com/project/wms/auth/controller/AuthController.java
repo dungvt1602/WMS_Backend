@@ -2,10 +2,7 @@ package com.project.wms.auth.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.project.wms.auth.dto.AuthResponse;
 import com.project.wms.auth.dto.LoginRequest;
@@ -13,7 +10,6 @@ import com.project.wms.auth.dto.RegisterRequest;
 import com.project.wms.auth.service.AuthService;
 import com.project.wms.common.response.ApiResponse;
 
-import org.springframework.web.bind.annotation.RequestBody;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -24,6 +20,11 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
 
     private final AuthService authService;
+
+    @GetMapping("/")
+    public String hello(){
+        return "Hello" ;
+    }
 
     // hàm đăng ký sử dụng responseEntity
     @PostMapping("/register")
