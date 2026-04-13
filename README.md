@@ -236,10 +236,25 @@ Dự án tập trung vào các vấn đề backend cốt lõi:
 
 ---
 
-## 11. Hướng phát triển
+## 11. Nhật ký năng cấp hệ thống (Chặng đường WMS Doanh Nghiệp)
 
-- [ ] Thêm idempotency cho outbound
-- [ ] Thêm cache layer
-- [ ] Ghi log bất đồng bộ
-- [ ] Chuẩn bị kiến trúc để tách module khi cần
-- [ ] Kiểm thử hiệu năng
+Dự án đã trải qua 7 Phase để từng bước giải quyết các bài toán hóc búa nhất của Production:
+1. **Core Entities**: Inbound, Outbound, Inventory + Stock Movement Log (Audit Trail) hoàn chỉnh.
+2. **Concurrency Mức độ CSDL**: Áp dụng Optimistic Locking (`@Version`) để khóa cứng hiện tượng Lost Update.
+3. **Data Security**: Xây dựng màng lưới Security RBAC (Phân quyền JWT). 
+4. **Performance**: Thiết lập Redis Cache xua tan nỗi lo cho các bảng Read-Heavy (Product/Warehouse).
+5. **Base Code Standards**: Tích hợp Global Exception Handler bóc tách lỗi DTO Validation sang chuẩn Response.
+6. **Data Integrity (No Hard Delete)**: Phá lệnh xóa cứng. Rào chắn SQL bằng cơ chế Soft Delete.
+7. **Scale to Enterprise Level (Mới nhất)**:
+   - **Luồng Ảo (Java 21 Virtual Threads)**: Quét sạch Tomcat Thread truyền thống, hỗ trợ chịu tải lên tới 10,000+ Concurrent Requests (chuẩn thiết kế ứng dụng System Design) với RAM tiết kiệm nhất.
+   - **DB Connection Pool Manager**: Cứu hộ DB không thở gấp bằng hàng rào Hikari (Max-Pool-Size).
+   - **Spring Data Pagination**: Bảo vệ tài nguyên, cấm tiệt truy vấn `List<T> findAll()`, chuẩn hóa xuất hàng loạt bằng `Page<T>` để chống Memory Leak.
+
+---
+
+## 12. Hướng phát triển trong tương lai
+
+- [ ] Phân tán hóa Module (Microservices DB per Service)
+- [ ] Thêm idempotency cho tác vụ Outbound
+- [ ] Ghi log bất đồng bộ bằng Kafka hoặc RabbitMQ
+- [ ] Trình quản lý sơ đồ Database Version Control (Sử dụng Flyway)

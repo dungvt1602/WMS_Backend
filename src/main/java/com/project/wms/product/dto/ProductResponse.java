@@ -11,5 +11,6 @@ public record ProductResponse(
         String unit,
         BigDecimal price,
         int stock, // Số lượng tồn kho (sẽ tính toán ở Service)
+        boolean active,
         LocalDateTime createdAt) {
 }

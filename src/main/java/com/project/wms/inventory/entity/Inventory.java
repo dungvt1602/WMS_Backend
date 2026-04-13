@@ -41,15 +41,11 @@ public class Inventory extends BaseEntity {
 
     @Column(nullable = false)
     @Min(value = 0, message = "Số lượng không được âm")
-    private int quantity;
+    private int quantity; // số lượng thực tế trong kho
 
     @Column(nullable = false)
     @Min(value = 0, message = "Số lượng không được âm")
-    private int reservedQuantity;
-
-    @Column(nullable = false)
-    @Min(value = 0, message = "Số lượng không được âm")
-    private int availableQuantity;
+    private int availableQuantity; // số lượng có sẵn = quantity - reservedQuantity
 
     @Column(nullable = false)
     private String location;

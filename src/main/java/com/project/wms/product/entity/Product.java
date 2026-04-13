@@ -47,4 +47,8 @@ public class Product extends BaseEntity {
 
     @NotBlank(message = "Đơn vị tính không được để trống")
     private String unit;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean active = true;
 }

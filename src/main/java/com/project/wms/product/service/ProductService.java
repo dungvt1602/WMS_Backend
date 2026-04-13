@@ -3,8 +3,15 @@ package com.project.wms.product.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.stringtemplate.v4.compiler.STParser.template_return;
 
 import com.project.wms.product.dto.ProductRequest;
 import com.project.wms.product.dto.ProductResponse;
@@ -20,6 +27,7 @@ public class ProductService {
     private final ProductRepository productRepository;
 
     @Transactional
+    @CacheEvict(value = "products", allEntries = true)
     public ProductResponse createProduct(ProductRequest productRequest) {
 
         // kiểm tra sku có trùng hay không
@@ -44,13 +52,13 @@ public class ProductService {
     }
 
     // tìm tất cả sản phẩm
-    public List<ProductResponse> getAllProduct() {
-        return productRepository.findAll()
-                .stream()
-                .map(this::mapToResponse) // method reference gọn hơn lambda
-                .collect(Collectors.toList());
+    @CacheEvict(value = "products", allEntries = true)
+    public Page<ProductResponse> getAllProduct(Pageable pageable) {
+        return productRepository.findAll(pageable)
+                .map(this::mapToResponse);
     }
 
+    @Cacheable(value = "products", key = "#id")
     public ProductResponse getProductById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm với id: " + id));
@@ -59,6 +67,7 @@ public class ProductService {
 
     // cap nhập product
     @Transactional
+    @CachePut(value = "products", key = "#id")
     public ProductResponse updateProduct(Long id, ProductRequest productRequest) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm với id: " + id));
@@ -77,9 +86,18 @@ public class ProductService {
 
     @Transactional
     public void deleteProduct(Long id) {
+        throw new RuntimeException(
+                "【Chính sách Enterprise】: Cấm xóa cứng (Hard Delete) Sản phẩm để bảo toàn lịch sử Kho. Vui lòng gọi API Disable Sản phẩm!");
+    }
+
+    // Tắt kinh doanh sản phẩm
+    @Transactional
+    @CacheEvict(value = "products", key = "#id")
+    public void disableProduct(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm với id: " + id));
-        productRepository.delete(product);
+        product.setActive(false);
+        productRepository.save(product);
     }
 
     // Hàm Helper chuyển đổi Entity -> Response DTO
@@ -92,6 +110,7 @@ public class ProductService {
                 product.getUnit(),
                 product.getPrice(),
                 0, // Tạm thời để stock = 0, sẽ xử lý ở module Inventory sau
+                product.isActive(),
                 product.getCreatedAt());
     }
 }

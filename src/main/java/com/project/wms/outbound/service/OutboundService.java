@@ -9,15 +9,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.project.wms.common.enums.OrderStatus;
 import com.project.wms.inventory.dto.InventoryRequest;
-import com.project.wms.inventory.entity.Inventory;
-import com.project.wms.inventory.repository.InventoryRepository;
 import com.project.wms.inventory.service.InventoryService;
 import com.project.wms.outbound.dto.OutboundItemRequest;
 import com.project.wms.outbound.dto.OutboundRequest;
 import com.project.wms.outbound.dto.OutboundResponse;
 import com.project.wms.outbound.entity.OutboundOrder;
 import com.project.wms.outbound.entity.OutboundOrderItems;
-import com.project.wms.outbound.repository.OutboundItemRepository;
 import com.project.wms.outbound.repository.OutboundRepository;
 import com.project.wms.product.entity.Product;
 import com.project.wms.product.repository.ProductRepository;

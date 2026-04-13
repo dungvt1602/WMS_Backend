@@ -6,6 +6,10 @@ import com.project.wms.warehouse.dto.WarehouseResponse;
 import com.project.wms.warehouse.service.WarehouseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,8 +33,11 @@ public class WarehouseController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<WarehouseResponse>>> getAllWarehouses() {
-        return ResponseEntity.ok(ApiResponse.success(warehouseService.getAllWarehouses()));
+    public ResponseEntity<ApiResponse<Page<WarehouseResponse>>> getAllWarehouses(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(ApiResponse.success(warehouseService.getAllWarehouses(pageable)));
     }
 
     @GetMapping("/{id}")

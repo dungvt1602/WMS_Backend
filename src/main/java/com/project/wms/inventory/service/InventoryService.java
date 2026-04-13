@@ -47,7 +47,6 @@ public class InventoryService {
                     .warehouse(warehouse)
                     .quantity(request.quantity())
                     .availableQuantity(request.quantity())
-                    .reservedQuantity(0)
                     .location("A1")
                     .status("ACTIVE")
                     .build();

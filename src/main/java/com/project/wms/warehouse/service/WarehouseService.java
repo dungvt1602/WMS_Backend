@@ -3,6 +3,11 @@ package com.project.wms.warehouse.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +25,7 @@ public class WarehouseService {
 
     // Tạo kho mới
     @Transactional
+    @CacheEvict(value = "warehouses", allEntries = true)
     public WarehouseResponse createWarehouse(WarehouseRequest request) {
         // Kiểm tra mã kho đã tồn tại chưa
         if (warehouseRepository.existsByCode(request.code())) {
@@ -40,13 +46,14 @@ public class WarehouseService {
     }
 
     // Lấy danh sách tất cả các kho
-    public List<WarehouseResponse> getAllWarehouses() {
-        return warehouseRepository.findAll().stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
+    @CacheEvict(value = "warehouses", allEntries = true)
+    public Page<WarehouseResponse> getAllWarehouses(Pageable pageable) {
+        return warehouseRepository.findAll(pageable)
+                .map(this::toResponse);
     }
 
     // Lấy kho theo id
+    @Cacheable(key = "#id", value = "warehouses")
     public WarehouseResponse getWarehouseById(Long id) {
         WarehouseEntity warehouse = warehouseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy kho với id: " + id));
@@ -56,14 +63,13 @@ public class WarehouseService {
     // tắt hoạt động của kho
     @Transactional
     public void disableWarehouse(String code) {
-        WarehouseEntity warehouse = warehouseRepository.findByCode(code)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy kho với mã: " + code));
-        warehouse.setActive(false);
-        warehouseRepository.save(warehouse);
+        throw new RuntimeException("【Chính sách Enterprise】: "
+                + "Cấm xóa cứng (Hard Delete) để bảo toàn lịch sử Nhập/Xuất kho. Vui lòng gọi API Disable Kho!");
     }
 
     // xóa warehouse đó khỏi database
     @Transactional
+    @CacheEvict(key = "#id", value = "warehouses")
     public void deleteWarehouse(String code) {
         WarehouseEntity warehouse = warehouseRepository.findByCode(code)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy kho với mã: " + code));
@@ -72,6 +78,7 @@ public class WarehouseService {
 
     // cập nhập kho theo id hoặc theo request
     @Transactional
+    @CachePut(key = "#id", value = "warehouses")
     public WarehouseResponse updateWarehouse(Long id, WarehouseRequest request) {
         WarehouseEntity warehouse = warehouseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy kho với id: " + id));

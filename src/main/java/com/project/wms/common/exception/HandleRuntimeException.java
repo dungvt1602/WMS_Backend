@@ -1,5 +1,8 @@
 package com.project.wms.common.exception;
 
+import java.util.stream.Collectors;
+
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -26,8 +29,15 @@ public class HandleRuntimeException {
         return ApiResponse.error(500, e.getMessage());
     }
 
-    @ExceptionHandler(UsernameNotFound.class)
-    public ApiResponse<String> handleUsernameNotFoundException(UsernameNotFound e) {
-        return ApiResponse.error(404, "Không tìm thấy Username này");
+    // Xử lí lỗi @Valid khi trả response sai
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ApiResponse<String> handleValidationExceptions(
+            MethodArgumentNotValidException e) {
+
+        String error = e.getBindingResult().getFieldErrors().stream()
+                .map(fieldError -> fieldError.getDefaultMessage())
+                .collect(Collectors.joining(", ", "[", "]"));
+        return ApiResponse.error(400, "Lỗi dữ liệu đầu vào: " + error);
     }
+
 }
