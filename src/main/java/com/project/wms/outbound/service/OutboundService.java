@@ -4,11 +4,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.project.wms.inventory.kafka.InventoryProducer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.project.wms.common.enums.OrderStatus;
 import com.project.wms.inventory.dto.InventoryRequest;
+import com.project.wms.inventory.kafka.InventoryEvent;
+import com.project.wms.inventory.service.InventoryRedisService;
 import com.project.wms.inventory.service.InventoryService;
 import com.project.wms.outbound.dto.OutboundItemRequest;
 import com.project.wms.outbound.dto.OutboundRequest;
@@ -22,15 +25,19 @@ import com.project.wms.warehouse.entity.WarehouseEntity;
 import com.project.wms.warehouse.repository.WarehouseRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OutboundService {
 
         private final OutboundRepository outboundRepository;
         private final ProductRepository productRepository;
         private final WarehouseRepository warehouseRepository;
         private final InventoryService inventoryService;
+        private final InventoryRedisService inventoryRedisService;
+        private final InventoryProducer inventoryProducer;
 
         @Transactional
         public OutboundResponse createOrder(OutboundRequest request) {
@@ -90,12 +97,36 @@ public class OutboundService {
 
                 // cap nhap hang ton kho
                 for (OutboundOrderItems item : order.getOutboundOrderItems()) {
-                        InventoryRequest inventoryRequest = new InventoryRequest(
-                                        item.getWarehouse().getId(),
-                                        item.getProduct().getId(),
-                                        item.getQuantity(),
-                                        order.getOrderCode());
-                        inventoryService.removeStock(inventoryRequest);
+
+                        // kiem tra xem mat hang nay co phai la hang hot khong
+                        if (hotItem(item.getProduct())) {
+                                // tru hang hot tren redis
+                                boolean success = inventoryRedisService.decreaseStockAtomic(item.getWarehouse().getId(),
+                                                item.getProduct().getId(), item.getQuantity());
+
+                                // Trường hợp không đủ hàng trong kho
+                                if (!success) {
+                                        throw new RuntimeException("Xuat kho that bai: Không đủ hàng trong kho");
+                                }
+
+                                // Trường hợp đủ hàng trong kho
+                                InventoryEvent inventoryEvent = new InventoryEvent(
+                                                item.getWarehouse().getId(),
+                                                item.getProduct().getId(),
+                                                item.getQuantity(),
+                                                "OUTBOUND",
+                                                order.getOrderCode());
+
+                                inventoryProducer.sendInventoryEvent(inventoryEvent);
+                        } else {
+                                InventoryRequest inventoryRequest = new InventoryRequest(
+                                                item.getWarehouse().getId(),
+                                                item.getProduct().getId(),
+                                                item.getQuantity(),
+                                                order.getOrderCode());
+                                inventoryService.removeStock(inventoryRequest);
+                        }
+
                 }
 
                 order.setStatus(OrderStatus.COMPLETED);
@@ -122,6 +153,12 @@ public class OutboundService {
                                 order.getOrderDateTime(),
                                 order.getNote(),
                                 itemDTOs);
+        }
+
+        private boolean hotItem(Product product) {
+                // Kiem tra xem co hot hay khong
+                String name = product.getName().toLowerCase();
+                return name.contains("laptop") || name.contains("raw");
         }
 
 }

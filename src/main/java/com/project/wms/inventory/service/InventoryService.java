@@ -20,99 +20,100 @@ import lombok.AllArgsConstructor;
 @Service
 @AllArgsConstructor
 public class InventoryService {
-    private final InventoryRepository inventoryRepository;
-    private final WarehouseRepository warehouseRepository;
-    private final ProductRepository productRepository;
-    private final MovementRepository movementRepository;
+        private final InventoryRepository inventoryRepository;
+        private final WarehouseRepository warehouseRepository;
+        private final ProductRepository productRepository;
+        private final MovementRepository movementRepository;
 
-    @Transactional
-    public InventoryResponse addStock(InventoryRequest request) {
-        // 1. Lôi cổ Product và Warehouse từ database lên để check xem nó có tồn tại
-        // không
-        Product product = productRepository.findById(request.productId())
-                .orElseThrow(() -> new RuntimeException("Sản phẩm không tồn tại!"));
+        @Transactional
+        public InventoryResponse addStock(InventoryRequest request) {
+                // 1. Lôi cổ Product và Warehouse từ database lên để check xem nó có tồn tại
+                // không
+                Product product = productRepository.findById(request.productId())
+                                .orElseThrow(() -> new RuntimeException("Sản phẩm không tồn tại!"));
 
-        WarehouseEntity warehouse = warehouseRepository.findById(request.warehouseId())
-                .orElseThrow(() -> new RuntimeException("Kho không tồn tại!"));
+                WarehouseEntity warehouse = warehouseRepository.findById(request.warehouseId())
+                                .orElseThrow(() -> new RuntimeException("Kho không tồn tại!"));
 
-        // 2. Tìm xem kho này đã từng chứa đồ này chưa?
-        Inventory inventory = inventoryRepository
-                .findByWarehouseIdAndProductId(request.warehouseId(), request.productId())
-                .orElse(null);
+                // 2. Tìm xem kho này đã từng chứa đồ này chưa?
+                Inventory inventory = inventoryRepository
+                                .findByWarehouseIdAndProductId(request.warehouseId(), request.productId())
+                                .orElse(null);
 
-        if (inventory == null) {
-            // Trường hợp 1: Món này lần đầu chui vào kho -> Tạo mới thẻ tồn kho
-            inventory = Inventory.builder()
-                    .product(product)
-                    .warehouse(warehouse)
-                    .quantity(request.quantity())
-                    .availableQuantity(request.quantity())
-                    .location("A1")
-                    .status("ACTIVE")
-                    .build();
-        } else {
-            // Trường hợp 2: Đã có sẵn trong kho -> Cộng dồn số lượng
-            inventory.setQuantity(inventory.getQuantity() + request.quantity());
-            inventory.setAvailableQuantity(inventory.getAvailableQuantity() + request.quantity());
+                if (inventory == null) {
+                        // Trường hợp 1: Món này lần đầu chui vào kho -> Tạo mới thẻ tồn kho
+                        inventory = Inventory.builder()
+                                        .product(product)
+                                        .warehouse(warehouse)
+                                        .quantity(request.quantity())
+                                        .availableQuantity(request.quantity())
+                                        .location("A1")
+                                        .status("ACTIVE")
+                                        .build();
+                } else {
+                        // Trường hợp 2: Đã có sẵn trong kho -> Cộng dồn số lượng
+                        inventory.setQuantity(inventory.getQuantity() + request.quantity());
+                        inventory.setAvailableQuantity(inventory.getAvailableQuantity() + request.quantity());
+                }
+
+                // luu bien động số dư - log ra
+                saveMovement(inventory, MovementType.INBOUND, request.quantity(), request.referenceCode());
+
+                // 3. Save xuống DB
+                Inventory savedInventory = inventoryRepository.save(inventory);
+
+                return toResponse(savedInventory);
         }
 
-        // luu bien động số dư - log ra
-        saveMovement(inventory, MovementType.INBOUND, request.quantity(), request.referenceCode());
+        @Transactional
+        public InventoryResponse removeStock(InventoryRequest request) {
+                // Tìm thẻ kho
+                Inventory inventory = inventoryRepository
+                                .findWithLockByWarehouseIdAndProductId(request.warehouseId(), request.productId())
+                                .orElseThrow(() -> new RuntimeException("Sản phẩm không có trong kho này!"));
 
-        // 3. Save xuống DB
-        Inventory savedInventory = inventoryRepository.save(inventory);
+                // Kiểm tra xem số lượng trong kho có đủ để xuất không
+                if (inventory.getAvailableQuantity() < request.quantity()) {
+                        throw new RuntimeException(
+                                        "Không đủ hàng trong kho! Chỉ còn " + inventory.getAvailableQuantity()
+                                                        + " sản phẩm.");
+                }
 
-        return toResponse(savedInventory);
-    }
+                // Trừ đi số lượng
+                inventory.setQuantity(inventory.getQuantity() - request.quantity());
+                inventory.setAvailableQuantity(inventory.getAvailableQuantity() - request.quantity());
 
-    @Transactional
-    public InventoryResponse removeStock(InventoryRequest request) {
-        // Tìm thẻ kho
-        Inventory inventory = inventoryRepository
-                .findByWarehouseIdAndProductId(request.warehouseId(), request.productId())
-                .orElseThrow(() -> new RuntimeException("Sản phẩm không có trong kho này!"));
+                // ghi bien dong so du
 
-        // Kiểm tra xem số lượng trong kho có đủ để xuất không
-        if (inventory.getAvailableQuantity() < request.quantity()) {
-            throw new RuntimeException(
-                    "Không đủ hàng trong kho! Chỉ còn " + inventory.getAvailableQuantity() + " sản phẩm.");
+                // luu bien động số dư - log ra
+                saveMovement(inventory, MovementType.OUTBOUND, request.quantity(), request.referenceCode());
+
+                // 3. Save xuống DB
+                Inventory savedInventory = inventoryRepository.save(inventory);
+                return toResponse(savedInventory);
         }
 
-        // Trừ đi số lượng
-        inventory.setQuantity(inventory.getQuantity() - request.quantity());
-        inventory.setAvailableQuantity(inventory.getAvailableQuantity() - request.quantity());
+        private InventoryResponse toResponse(Inventory inventory) {
+                return new InventoryResponse(
+                                inventory.getId(),
+                                inventory.getWarehouse().getId(),
+                                inventory.getWarehouse().getName(),
+                                inventory.getProduct().getId(),
+                                inventory.getProduct().getName(),
+                                inventory.getQuantity(),
+                                inventory.getAvailableQuantity());
+        }
 
-        // ghi bien dong so du
-
-        // luu bien động số dư - log ra
-        saveMovement(inventory, MovementType.OUTBOUND, request.quantity(), request.referenceCode());
-
-        // 3. Save xuống DB
-        Inventory savedInventory = inventoryRepository.save(inventory);
-        return toResponse(savedInventory);
-    }
-
-    private InventoryResponse toResponse(Inventory inventory) {
-        return new InventoryResponse(
-                inventory.getId(),
-                inventory.getWarehouse().getId(),
-                inventory.getWarehouse().getName(),
-                inventory.getProduct().getId(),
-                inventory.getProduct().getName(),
-                inventory.getQuantity(),
-                inventory.getAvailableQuantity());
-    }
-
-    // tao bien dong so du
-    private void saveMovement(Inventory inventory,
-            MovementType movementType, int quantity, String referenceCode) {
-        StockMovement movement = StockMovement.builder()
-                .product(inventory.getProduct())
-                .warehouse(inventory.getWarehouse())
-                .movementType(movementType)
-                .quantity(quantity)
-                .referenceCode(referenceCode)
-                .build();
-        movementRepository.save(movement);
-    }
+        // tao bien dong so du
+        private void saveMovement(Inventory inventory,
+                        MovementType movementType, int quantity, String referenceCode) {
+                StockMovement movement = StockMovement.builder()
+                                .product(inventory.getProduct())
+                                .warehouse(inventory.getWarehouse())
+                                .movementType(movementType)
+                                .quantity(quantity)
+                                .referenceCode(referenceCode)
+                                .build();
+                movementRepository.save(movement);
+        }
 }
