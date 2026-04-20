@@ -35,7 +35,7 @@ public class InventoryConsumer {
             // Xu li nhap kho
             if ("INBOUND".equals(event.actionType())) {
                 InventoryRequest request = new InventoryRequest(event.warehouseid(),
-                        event.productid(), event.quantity(), event.orderCode());
+                        event.zoneId(), event.productid(), event.quantity(), event.orderCode());
                 inventoryService.addStock(request); // goi service den database de xu ly
 
                 log.info("✅ Cập nhật Database thành công cho lệnh nhập kho: {}", event.orderCode());
@@ -44,7 +44,7 @@ public class InventoryConsumer {
             // xu li xuat kho
             else if ("OUTBOUND".equals(event.actionType())) {
                 InventoryRequest request = new InventoryRequest(event.warehouseid(),
-                        event.productid(), event.quantity(), event.orderCode());
+                        event.zoneId(), event.productid(), event.quantity(), event.orderCode());
                 inventoryService.removeStock(request); // goi service den database de xu ly
 
                 log.info("✅ Cập nhật Database thành công cho lệnh xuất kho: {}", event.orderCode());

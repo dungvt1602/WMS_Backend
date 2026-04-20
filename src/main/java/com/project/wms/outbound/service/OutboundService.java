@@ -79,7 +79,7 @@ public class OutboundService {
         }
 
         @Transactional
-        public OutboundResponse completeOrder(Long orderId) {
+        public OutboundResponse completeOrder(Long orderId, Long zoneId) {
                 // Tim don hang co ton tai khong
                 OutboundOrder order = outboundRepository.findById(orderId)
                                 .orElseThrow(() -> new RuntimeException("Khong tim thay phieu xuat kho" + orderId));
@@ -102,7 +102,7 @@ public class OutboundService {
                         if (hotItem(item.getProduct())) {
                                 // tru hang hot tren redis
                                 boolean success = inventoryRedisService.decreaseStockAtomic(item.getWarehouse().getId(),
-                                                item.getProduct().getId(), item.getQuantity());
+                                                zoneId, item.getProduct().getId(), item.getQuantity());
 
                                 // Trường hợp không đủ hàng trong kho
                                 if (!success) {
@@ -112,6 +112,7 @@ public class OutboundService {
                                 // Trường hợp đủ hàng trong kho
                                 InventoryEvent inventoryEvent = new InventoryEvent(
                                                 item.getWarehouse().getId(),
+                                                zoneId,
                                                 item.getProduct().getId(),
                                                 item.getQuantity(),
                                                 "OUTBOUND",
@@ -121,6 +122,7 @@ public class OutboundService {
                         } else {
                                 InventoryRequest inventoryRequest = new InventoryRequest(
                                                 item.getWarehouse().getId(),
+                                                zoneId,
                                                 item.getProduct().getId(),
                                                 item.getQuantity(),
                                                 order.getOrderCode());

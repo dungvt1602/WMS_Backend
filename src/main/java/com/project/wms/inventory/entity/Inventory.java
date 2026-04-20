@@ -3,6 +3,7 @@ package com.project.wms.inventory.entity;
 import com.project.wms.common.entity.BaseEntity;
 import com.project.wms.product.entity.Product;
 import com.project.wms.warehouse.entity.WarehouseEntity;
+import com.project.wms.warehouse.entity.WarehouseZone;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,7 +27,8 @@ import lombok.Builder;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "inv_inventory", uniqueConstraints = @UniqueConstraint(columnNames = { "warehouse_id", "product_id" }))
+@Table(name = "inv_inventory", uniqueConstraints = @UniqueConstraint(columnNames = { "warehouse_id", "product_id",
+        "zone_id" }))
 public class Inventory extends BaseEntity {
 
     @NotNull(message = "Kho không được để trống")
@@ -38,6 +40,10 @@ public class Inventory extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "zone_id")
+    private WarehouseZone zone;
 
     @Column(nullable = false)
     @Min(value = 0, message = "Số lượng không được âm")

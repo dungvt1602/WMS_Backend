@@ -13,8 +13,8 @@ public class InventoryRedisService {
     private final DefaultRedisScript<Long> decreaseStockScript;
 
     // Hàm trừ số lượng hàng hot trên redis mức độ automic
-    public boolean decreaseStockAtomic(Long warehouseId, Long productId, int quantity) {
-        String key = "stock:" + warehouseId + ":" + productId;
+    public boolean decreaseStockAtomic(Long warehouseId, Long zoneId, Long productId, int quantity) {
+        String key = "stock:" + warehouseId + ":" + zoneId + ":" + productId;
 
         // Chạy script: truyền Key và Đối số (quantity)
         Long result = stringRedisTemplate.execute(
@@ -24,12 +24,6 @@ public class InventoryRedisService {
 
         // Nếu result = -1 nghĩa là không đủ hàng (do ta quy định trong file lua)
         return result != null && result >= 0;
-    }
-
-    // Hàm cộng số lượng hàng hot trên redis mức độ automic
-    public void increaseStockAtomic(Long warehouseId, Long productId, int quantity) {
-        String key = "stock:" + warehouseId + ":" + productId;
-        stringRedisTemplate.opsForValue().increment(key, quantity);
     }
 
 }

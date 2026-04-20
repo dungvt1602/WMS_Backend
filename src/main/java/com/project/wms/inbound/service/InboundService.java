@@ -73,7 +73,7 @@ public class InboundService {
     }
 
     @Transactional
-    public InboundResponse completeOrder(Long orderId) {
+    public InboundResponse completeOrder(Long orderId, Long zoneId) {
         // tìm order cần hoàn thành
         InboundOrder order = inboundOrderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy phiếu nhập kho"));
@@ -94,6 +94,7 @@ public class InboundService {
         for (InboundOrderItems item : items) {
             InventoryRequest inventoryRequest = new InventoryRequest(
                     item.getWarehouse().getId(),
+                    zoneId,
                     item.getProduct().getId(),
                     item.getQuantity(),
                     order.getOrderNumber());

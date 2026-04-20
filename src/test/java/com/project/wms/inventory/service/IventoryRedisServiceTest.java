@@ -41,8 +41,9 @@ public class IventoryRedisServiceTest {
         Long warehouseId = 1L;
         Long productId = 1L;
         int quantity = 3;
+        Long zoneId = 1L;
         Long remaining = 7L;
-        String key = "stock:" + warehouseId + ":" + productId;
+        String key = "stock:" + warehouseId + ":" + zoneId + ":" + productId;
         // 2. Gọi hàm cần test
         when(stringRedisTemplate.execute(
                 eq(decreaseStockScript),
@@ -50,7 +51,7 @@ public class IventoryRedisServiceTest {
                 eq(String.valueOf(quantity)))).thenReturn(remaining);
 
         // 3 trả kết quả
-        boolean result = inventoryRedisService.decreaseStockAtomic(warehouseId, productId, quantity);
+        boolean result = inventoryRedisService.decreaseStockAtomic(warehouseId, zoneId, productId, quantity);
 
         // 4. Verify (Xác nhận hành vi thực hiện)
         assertTrue(result, "Nên trả về true khi đủ hàng");
@@ -64,8 +65,9 @@ public class IventoryRedisServiceTest {
         // 1. Chuẩn bị dữ liệu mẫu
         Long warehouseId = 1L;
         Long productId = 1L;
+        Long zoneId = 1L;
         int quantity = 15; // Số lượng lớn hơn tồn kho
-        String key = "stock:" + warehouseId + ":" + productId;
+        String key = "stock:" + warehouseId + ":" + zoneId + ":" + productId;
         Long remaining = -5L;
         // 2. Gọi hàm cần test
         when(stringRedisTemplate.execute(
@@ -74,7 +76,7 @@ public class IventoryRedisServiceTest {
                 eq(String.valueOf(quantity)))).thenReturn(remaining);
 
         // 3 trả kết quả
-        boolean result = inventoryRedisService.decreaseStockAtomic(warehouseId, productId, quantity);
+        boolean result = inventoryRedisService.decreaseStockAtomic(warehouseId, zoneId, productId, quantity);
 
         // 4. Verify (Xác nhận hành vi thực hiện)
         assertFalse(result, "Nên trả về false khi không đủ hàng");

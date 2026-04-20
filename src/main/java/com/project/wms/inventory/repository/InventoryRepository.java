@@ -14,12 +14,14 @@ import jakarta.persistence.LockModeType;
 
 public interface InventoryRepository extends JpaRepository<Inventory, Long> {
 
-    // tìm sản phẩm theo warehouseid và productid
-    Optional<Inventory> findByWarehouseIdAndProductId(Long warehouseId, Long productId);
+    // tìm sản phẩm theo warehouseid và productid và zoneid (nếu không có zone thì tự động tìm hàng chưa gán zone)
+    @Query("SELECT i FROM Inventory i WHERE i.warehouse.id = :warehouseId AND i.product.id = :productId AND ((:zoneId IS NULL AND i.zone IS NULL) OR i.zone.id = :zoneId)")
+    Optional<Inventory> findByWarehouseIdAndProductIdAndZoneId(@Param("warehouseId") Long warehouseId, @Param("productId") Long productId, @Param("zoneId") Long zoneId);
 
     // Khóa bi quan lock
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    Optional<Inventory> findWithLockByWarehouseIdAndProductId(Long warehouseId, Long productId);
+    @Query("SELECT i FROM Inventory i WHERE i.warehouse.id = :warehouseId AND i.product.id = :productId AND ((:zoneId IS NULL AND i.zone IS NULL) OR i.zone.id = :zoneId)")
+    Optional<Inventory> findWithLockByWarehouseIdAndProductIdAndZoneId(@Param("warehouseId") Long warehouseId, @Param("productId") Long productId, @Param("zoneId") Long zoneId);
 
     // Lấy danh sách sản phẩm trong 1 kho cụ thể
     List<Inventory> findByWarehouseId(Long warehouseId);

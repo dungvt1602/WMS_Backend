@@ -36,8 +36,8 @@ public class OutboundController {
     // Hoàn thành phiếu xuất kho
     @PatchMapping("/{orderId}/complete")
     public ResponseEntity<ApiResponse<OutboundResponse>> completeOrder(
-            @PathVariable Long orderId) {
-        OutboundResponse response = outboundService.completeOrder(orderId);
+            @PathVariable Long orderId, @RequestBody Long zoneId) {
+        OutboundResponse response = outboundService.completeOrder(orderId, zoneId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 }

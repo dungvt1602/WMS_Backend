@@ -30,7 +30,7 @@ class InventoryConsumerTest {
     @DisplayName("1. Nhận sự kiện OUTBOUND → gọi removeStock thành công")
     void consume_OutboundEvent_ShouldCallRemoveStock() {
         // TODO: Tạo InventoryEvent với actionType = "OUTBOUND"
-        InventoryEvent inventoryEvent = new InventoryEvent(1L, 1L, 10, "OUTBOUND", "ORDER-001");
+        InventoryEvent inventoryEvent = new InventoryEvent(1L, 1L, 1L, 10, "OUTBOUND", "ORDER-001");
         // TODO: Gọi inventoryConsumer.consume(event)
         inventoryConsumer.consume(inventoryEvent);
         // TODO: verify inventoryService.removeStock() được gọi 1 lần
@@ -44,7 +44,7 @@ class InventoryConsumerTest {
     @DisplayName("2. Nhận sự kiện INBOUND → gọi addStock thành công")
     void consume_InboundEvent_ShouldCallAddStock() {
         // TODO: Tạo InventoryEvent với actionType = "INBOUND"
-        InventoryEvent inventoryEvent = new InventoryEvent(1L, 1L, 10, "INBOUND", "ORDER-001");
+        InventoryEvent inventoryEvent = new InventoryEvent(1L, 1L, 1L, 10, "INBOUND", "ORDER-001");
         // TODO: Gọi inventoryConsumer.consume(event)
         inventoryConsumer.consume(inventoryEvent);
         // TODO: verify inventoryService.addStock() được gọi 1 lần
@@ -59,7 +59,7 @@ class InventoryConsumerTest {
     @DisplayName("3. removeStock lỗi → Consumer ném lại exception cho Kafka retry")
     void consume_FailedEvent_ShouldThrowException() {
         // TODO: Tạo InventoryEvent với actionType = "OUTBOUND"
-        InventoryEvent inventoryEvent = new InventoryEvent(1L, 1L, 10, "OUTBOUND", "ORDER-001");
+        InventoryEvent inventoryEvent = new InventoryEvent(1L, 1L, 1L, 10, "OUTBOUND", "ORDER-001");
         // TODO: Dùng when(...).thenThrow() để giả lập removeStock() bị lỗi
         when(inventoryService.removeStock(any(InventoryRequest.class)))
                 .thenThrow(new RuntimeException("Lỗi kết nối DB"));

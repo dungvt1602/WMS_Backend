@@ -13,7 +13,9 @@ import com.project.wms.inventory.repository.MovementRepository;
 import com.project.wms.product.entity.Product;
 import com.project.wms.product.repository.ProductRepository;
 import com.project.wms.warehouse.entity.WarehouseEntity;
+import com.project.wms.warehouse.entity.WarehouseZone;
 import com.project.wms.warehouse.repository.WarehouseRepository;
+import com.project.wms.warehouse.repository.WarehouseZoneRepository;
 
 import lombok.AllArgsConstructor;
 
@@ -22,6 +24,7 @@ import lombok.AllArgsConstructor;
 public class InventoryService {
         private final InventoryRepository inventoryRepository;
         private final WarehouseRepository warehouseRepository;
+        private final WarehouseZoneRepository warehouseZoneRepository;
         private final ProductRepository productRepository;
         private final MovementRepository movementRepository;
 
@@ -35,9 +38,15 @@ public class InventoryService {
                 WarehouseEntity warehouse = warehouseRepository.findById(request.warehouseId())
                                 .orElseThrow(() -> new RuntimeException("Kho không tồn tại!"));
 
-                // 2. Tìm xem kho này đã từng chứa đồ này chưa?
+                WarehouseZone zone = null;
+                if (request.zoneId() != null) {
+                        zone = warehouseZoneRepository.findById(request.zoneId())
+                                        .orElseThrow(() -> new RuntimeException("Khu vực (Zone) không tồn tại!"));
+                }
+
+                // 2. Tìm xem kho và khu này đã từng chứa đồ này chưa?
                 Inventory inventory = inventoryRepository
-                                .findByWarehouseIdAndProductId(request.warehouseId(), request.productId())
+                                .findByWarehouseIdAndProductIdAndZoneId(request.warehouseId(), request.productId(), request.zoneId())
                                 .orElse(null);
 
                 if (inventory == null) {
@@ -45,9 +54,10 @@ public class InventoryService {
                         inventory = Inventory.builder()
                                         .product(product)
                                         .warehouse(warehouse)
+                                        .zone(zone)
                                         .quantity(request.quantity())
                                         .availableQuantity(request.quantity())
-                                        .location("A1")
+                                        .location(zone != null ? zone.getCode() : "N/A")
                                         .status("ACTIVE")
                                         .build();
                 } else {
@@ -67,10 +77,10 @@ public class InventoryService {
 
         @Transactional
         public InventoryResponse removeStock(InventoryRequest request) {
-                // Tìm thẻ kho
+                // Tìm thẻ kho tại chính xác Vị trí đó
                 Inventory inventory = inventoryRepository
-                                .findWithLockByWarehouseIdAndProductId(request.warehouseId(), request.productId())
-                                .orElseThrow(() -> new RuntimeException("Sản phẩm không có trong kho này!"));
+                                .findWithLockByWarehouseIdAndProductIdAndZoneId(request.warehouseId(), request.productId(), request.zoneId())
+                                .orElseThrow(() -> new RuntimeException("Sản phẩm không có trong kho (hoặc vị trí) này!"));
 
                 // Kiểm tra xem số lượng trong kho có đủ để xuất không
                 if (inventory.getAvailableQuantity() < request.quantity()) {

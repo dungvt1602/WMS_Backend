@@ -43,7 +43,8 @@ public class InventoryWarmupService implements CommandLineRunner {
 
         stringRedisTemplate.executePipelined((RedisCallback<?>) connection -> {
             for (Inventory inv : hotItems) {
-                String key = "stock:" + inv.getWarehouse().getId() + ":" + inv.getProduct().getId();
+                String key = "stock:" + inv.getWarehouse().getId() + ":" + inv.getZone().getId() + ":"
+                        + inv.getProduct().getId();
                 String value = String.valueOf(inv.getQuantity());
 
                 connection.set(key.getBytes(), value.getBytes());

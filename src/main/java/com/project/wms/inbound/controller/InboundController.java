@@ -36,8 +36,8 @@ public class InboundController {
     // Hoan thanh phieu nhap kho
     @PatchMapping("/{orderId}/complete")
     public ResponseEntity<ApiResponse<InboundResponse>> completeOrder(
-            @PathVariable Long orderId) {
-        InboundResponse response = inboundService.completeOrder(orderId);
+            @PathVariable Long orderId, @RequestBody Long zoneId) {
+        InboundResponse response = inboundService.completeOrder(orderId, zoneId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
