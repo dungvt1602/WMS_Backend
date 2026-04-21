@@ -8,14 +8,14 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.stringtemplate.v4.compiler.STParser.template_return;
 
 import com.project.wms.product.dto.ProductRequest;
 import com.project.wms.product.dto.ProductResponse;
+import com.project.wms.product.entity.Category;
 import com.project.wms.product.entity.Product;
+import com.project.wms.product.repository.CategoryRepository;
 import com.project.wms.product.repository.ProductRepository;
 
 import lombok.AllArgsConstructor;
@@ -24,93 +24,109 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class ProductService {
 
-    private final ProductRepository productRepository;
+        private final ProductRepository productRepository;
 
-    @Transactional
-    @CacheEvict(value = "products", allEntries = true)
-    public ProductResponse createProduct(ProductRequest productRequest) {
+        private final CategoryRepository categoryRepository;
 
-        // kiểm tra sku có trùng hay không
-        productRepository.findBySku(productRequest.sku())
-                .ifPresent(product -> {
-                    throw new RuntimeException("Sản phẩm đã tồn tại " + product.getSku());
-                });
+        @Transactional
+        @CacheEvict(value = "products", allEntries = true)
+        public ProductResponse createProduct(ProductRequest productRequest) {
 
-        // tạo sản phẩm
-        Product product = Product.builder()
-                .name(productRequest.name())
-                .sku(productRequest.sku())
-                .description(productRequest.description())
-                .unit(productRequest.unit())
-                .price(productRequest.price())
-                .stock(productRequest.quantity())
-                .build();
+                // kiểm tra sku có trùng hay không
+                productRepository.findBySku(productRequest.sku())
+                                .ifPresent(product -> {
+                                        throw new RuntimeException("Sản phẩm đã tồn tại " + product.getSku());
+                                });
 
-        // Lưu sản phẩm vào database
-        Product savedProduct = productRepository.save(product);
-        return mapToResponse(savedProduct);
-    }
+                Category category = categoryRepository.findByName(productRequest.category())
+                                .orElseThrow(() -> new RuntimeException(
+                                                "Không tìm thấy danh mục sản phẩm với tên: "
+                                                                + productRequest.category()));
 
-    // tìm tất cả sản phẩm
-    @CacheEvict(value = "products", allEntries = true)
-    public Page<ProductResponse> getAllProduct(Pageable pageable) {
-        return productRepository.findAll(pageable)
-                .map(this::mapToResponse);
-    }
+                // tạo sản phẩm
+                Product product = Product.builder()
+                                .name(productRequest.name())
+                                .sku(productRequest.sku())
+                                .description(productRequest.description())
+                                .unit(productRequest.unit())
+                                .category(category)
+                                .price(productRequest.price())
+                                .stock(productRequest.quantity())
+                                .build();
 
-    @Cacheable(value = "products", key = "#id")
-    public ProductResponse getProductById(Long id) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm với id: " + id));
-        return mapToResponse(product);
-    }
+                // Lưu sản phẩm vào database
+                Product savedProduct = productRepository.save(product);
+                return mapToResponse(savedProduct);
+        }
 
-    // cap nhập product
-    @Transactional
-    @CachePut(value = "products", key = "#id")
-    public ProductResponse updateProduct(Long id, ProductRequest productRequest) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm với id: " + id));
+        // tìm tất cả sản phẩm
+        @CacheEvict(value = "products", allEntries = true)
+        public Page<ProductResponse> getAllProduct(Pageable pageable) {
+                return productRepository.findAll(pageable)
+                                .map(this::mapToResponse);
+        }
 
-        // cập nhập thông tin sản phẩm
-        product.setName(productRequest.name());
-        product.setSku(productRequest.sku());
-        product.setDescription(productRequest.description());
-        product.setUnit(productRequest.unit());
-        product.setPrice(productRequest.price());
-        product.setStock(productRequest.quantity());
+        @Cacheable(value = "products", key = "#id")
+        public ProductResponse getProductById(Long id) {
+                Product product = productRepository.findById(id)
+                                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm với id: " + id));
+                return mapToResponse(product);
+        }
 
-        Product updatedProduct = productRepository.save(product);
-        return mapToResponse(updatedProduct);
-    }
+        // cap nhập product
+        @Transactional
+        @CachePut(value = "products", key = "#id")
+        public ProductResponse updateProduct(Long id, ProductRequest productRequest) {
+                Product product = productRepository.findById(id)
+                                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm với id: " + id));
 
-    @Transactional
-    public void deleteProduct(Long id) {
-        throw new RuntimeException(
-                "【Chính sách Enterprise】: Cấm xóa cứng (Hard Delete) Sản phẩm để bảo toàn lịch sử Kho. Vui lòng gọi API Disable Sản phẩm!");
-    }
+                // Tim danh muc loai san pham
+                Category category = categoryRepository.findByName(productRequest.category())
+                                .orElseThrow(() -> new RuntimeException(
+                                                "Không tìm thấy danh mục sản phẩm với tên: "
+                                                                + productRequest.category()));
 
-    // Tắt kinh doanh sản phẩm
-    @Transactional
-    @CacheEvict(value = "products", key = "#id")
-    public void disableProduct(Long id) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm với id: " + id));
-        product.setActive(false);
-        productRepository.save(product);
-    }
+                // cập nhập thông tin sản phẩm
+                product.setName(productRequest.name());
+                product.setSku(productRequest.sku());
+                product.setDescription(productRequest.description());
+                product.setCategory(category);
+                product.setUnit(productRequest.unit());
+                product.setPrice(productRequest.price());
+                product.setStock(productRequest.quantity());
 
-    // Hàm Helper chuyển đổi Entity -> Response DTO
-    private ProductResponse mapToResponse(Product product) {
-        return new ProductResponse(
-                product.getId(),
-                product.getName(),
-                product.getSku(),
-                product.getDescription(),
-                product.getUnit(),
-                product.getPrice(),
-                0, // Tạm thời để stock = 0, sẽ xử lý ở module Inventory sau
-                product.isActive(),
-                product.getCreatedAt());
-    }
+                Product updatedProduct = productRepository.save(product);
+                return mapToResponse(updatedProduct);
+        }
+
+        @Transactional
+        public void deleteProduct(Long id) {
+                throw new RuntimeException(
+                                "【Chính sách Enterprise】: Cấm xóa cứng (Hard Delete) Sản phẩm để bảo toàn lịch sử Kho. Vui lòng gọi API Disable Sản phẩm!");
+        }
+
+        // Tắt kinh doanh sản phẩm
+        @Transactional
+        @CacheEvict(value = "products", key = "#id")
+        public void disableProduct(Long id) {
+                Product product = productRepository.findById(id)
+                                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm với id: " + id));
+                product.setActive(false);
+                productRepository.save(product);
+        }
+
+        // Hàm Helper chuyển đổi Entity -> Response DTO
+        private ProductResponse mapToResponse(Product product) {
+                return new ProductResponse(
+                                product.getId(),
+                                product.getName(),
+                                product.getSku(),
+                                product.getDescription(),
+                                product.getCategory() != null ? product.getCategory().getName() : "Uncategorized",
+                                product.getUnit(),
+                                product.getPrice(),
+                                0, // Tạm thời để stock = 0, sẽ xử lý ở module Inventory sau
+                                product.isActive(),
+                                product.getCreatedAt());
+        }
 }

@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.project.wms.common.response.ApiResponse;
 import com.project.wms.inventory.dto.InventoryRequest;
 import com.project.wms.inventory.dto.InventoryResponse;
+import com.project.wms.inventory.dto.InventoryTransferRequest;
+import com.project.wms.inventory.dto.InventoryTransferResponse;
 import com.project.wms.inventory.service.InventoryService;
 
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,6 +34,14 @@ public class InventoryController {
     @PostMapping("/remove")
     public ResponseEntity<ApiResponse<InventoryResponse>> removeStock(@Valid @RequestBody InventoryRequest iRequest) {
         InventoryResponse response = inventoryService.removeStock(iRequest);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    // Tạo controller chuyển kho
+    @PostMapping("/transfer")
+    public ResponseEntity<ApiResponse<InventoryTransferResponse>> transferStock(
+            @Valid @RequestBody InventoryTransferRequest request) {
+        InventoryTransferResponse response = inventoryService.transferStock(request);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 }

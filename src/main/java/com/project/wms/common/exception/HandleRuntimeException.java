@@ -29,6 +29,11 @@ public class HandleRuntimeException {
         return ApiResponse.error(500, e.getMessage());
     }
 
+    @ExceptionHandler(BussinessException.class)
+    public ApiResponse<String> handleBussinessException(BussinessException e) {
+        return ApiResponse.error(400, e.getMessage());
+    }
+
     // Xử lí lỗi @Valid khi trả response sai
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ApiResponse<String> handleValidationExceptions(
