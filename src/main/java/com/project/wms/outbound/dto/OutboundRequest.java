@@ -6,9 +6,12 @@ import java.util.List;
 
 public record OutboundRequest(
 
-        @NotBlank(message = "Tên khách hàng không được để trống") String customerName,
+                @NotBlank(message = "Tên khách hàng không được để trống") Long customerId,
 
-        String note,
+                String note,
 
-        @NotEmpty(message = "Đơn xuất hàng phải có ít nhất một sản phẩm") List<OutboundItemRequest> items) {
+                @NotEmpty(message = "Đơn xuất hàng phải có ít nhất một sản phẩm") List<OutboundItemRequest> items,
+
+                @NotBlank(message = "Mã yêu cầu không được để trống") // cái này dùng đẻ chống lặp
+                String requestId) {
 }

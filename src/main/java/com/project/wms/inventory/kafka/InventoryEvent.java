@@ -6,6 +6,8 @@ public record InventoryEvent(
                 Long productid,
                 int quantity,
                 String actionType,
+                Long userId,
+                String userName,
                 String orderCode) {
 
 }

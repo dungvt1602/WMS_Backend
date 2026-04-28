@@ -5,12 +5,16 @@ import java.util.List;
 
 import com.project.wms.common.entity.BaseEntity;
 import com.project.wms.common.enums.OrderStatus;
+import com.project.wms.customer.entity.Customer;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
@@ -45,11 +49,14 @@ public class OutboundOrder extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String note;
 
-    @NotBlank(message = "Khach hang khong duoc de trong")
-    @Column(nullable = false)
-    private String customerName;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id", nullable = true)
+    private Customer customer;
 
     @OneToMany(mappedBy = "outboundOrder", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OutboundOrderItems> outboundOrderItems;
+
+    @Column(unique = true)
+    private String requestId; // Dùng để chống trùng lặp request khi hệ thống phân tán (Idempotency)
 
 }

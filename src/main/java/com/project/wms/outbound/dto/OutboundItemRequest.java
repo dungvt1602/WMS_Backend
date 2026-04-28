@@ -4,9 +4,11 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 public record OutboundItemRequest(
-                @NotNull(message = "ID sản phẩm không được để trống") Long productId,
+        @NotNull(message = "ID sản phẩm không được để trống") Long productId,
 
-                @NotNull(message = "ID kho xuất không được để trống") Long warehouseId,
+        @NotNull(message = "ID kho xuất không được để trống") Long warehouseId,
 
-                @Min(value = 1, message = "Số lượng xuất ít nhất phải là 1") int quantity) {
+        @NotNull(message = "ID Zone không được để trống") Long zoneId,
+
+        @Min(value = 1, message = "Số lượng xuất ít nhất phải là 1") int quantity) {
 }

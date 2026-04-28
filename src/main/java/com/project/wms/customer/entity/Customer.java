@@ -29,7 +29,7 @@ public class Customer extends BaseEntity {
     private String code;
 
     @NotBlank(message = "Tên đối tác không được để trống")
-    @Column(nullable = false, length = 150)
+    @Column(unique = true, nullable = false, length = 150)
     private String name;
 
     @NotNull(message = "Loại đối tác không được để trống")

@@ -3,6 +3,7 @@ package com.project.wms.outbound.entity;
 import com.project.wms.common.entity.BaseEntity;
 import com.project.wms.product.entity.Product;
 import com.project.wms.warehouse.entity.WarehouseEntity;
+import com.project.wms.warehouse.entity.WarehouseZone;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,6 +32,10 @@ public class OutboundOrderItems extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "warehouse_id", nullable = false)
     private WarehouseEntity warehouse;
+
+    @ManyToOne
+    @JoinColumn(name = "zone_id", nullable = false)
+    private WarehouseZone zone;
 
     @ManyToOne
     @JoinColumn(name = "outbound_order_id", nullable = false)

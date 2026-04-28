@@ -4,5 +4,6 @@ public enum MovementType {
     INBOUND,
     OUTBOUND,
     TRANSFER_IN,
-    TRANSFER_OUT
+    TRANSFER_OUT,
+    TRANSFER
 }

@@ -2,6 +2,7 @@ package com.project.wms.auth.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.project.wms.auth.dto.AuthResponse;
@@ -22,12 +23,13 @@ public class AuthController {
     private final AuthService authService;
 
     @GetMapping("/")
-    public String hello(){
-        return "Hello" ;
+    public String hello() {
+        return "Hello";
     }
 
     // hàm đăng ký sử dụng responseEntity
     @PostMapping("/register")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_USER')")
     public ResponseEntity<ApiResponse<AuthResponse>> register(@Valid @RequestBody RegisterRequest request) {
 
         var response = authService.register(request);
@@ -38,6 +40,7 @@ public class AuthController {
 
     // hàm đăng nhập sử dụng responseEntity
     @PostMapping("/login")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_USER')")
     public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
 
         var response = authService.login(request);

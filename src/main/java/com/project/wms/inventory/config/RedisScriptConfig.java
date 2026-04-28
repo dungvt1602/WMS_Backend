@@ -17,4 +17,14 @@ public class RedisScriptConfig {
         script.setResultType(Long.class);
         return script;
     }
+
+    @Bean
+    public DefaultRedisScript<Long> increaseStockScript() {
+        DefaultRedisScript<Long> script = new DefaultRedisScript<>();
+        // Trỏ đến file trong resources/scripts/
+        script.setLocation(new ClassPathResource("scripts/increase_stock.lua"));
+        // Khai báo kiểu trả về là Long (khớp với incrby của Redis)
+        script.setResultType(Long.class);
+        return script;
+    }
 }

@@ -1,8 +1,12 @@
 package com.project.wms.inventory.kafka;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.project.wms.inventory.dto.InventoryRequest;
+import com.project.wms.inventory.repository.InventoryLogRepository;
 import com.project.wms.inventory.service.InventoryService;
 
 @ExtendWith(MockitoExtension.class)
@@ -19,6 +24,9 @@ class InventoryConsumerTest {
 
     @Mock
     private InventoryService inventoryService;
+
+    @Mock
+    private InventoryLogRepository inventoryLogRepository;
 
     @InjectMocks
     private InventoryConsumer inventoryConsumer;
@@ -30,11 +38,13 @@ class InventoryConsumerTest {
     @DisplayName("1. Nhận sự kiện OUTBOUND → gọi removeStock thành công")
     void consume_OutboundEvent_ShouldCallRemoveStock() {
         // TODO: Tạo InventoryEvent với actionType = "OUTBOUND"
-        InventoryEvent inventoryEvent = new InventoryEvent(1L, 1L, 1L, 10, "OUTBOUND", "ORDER-001");
+        InventoryEvent inventoryEvent = new InventoryEvent(1L, 1L, 1L, 10, "OUTBOUND", 1L, "",
+                "ORDER-001");
         // TODO: Gọi inventoryConsumer.consume(event)
+        when(inventoryLogRepository.existsByOrderCode("ORDER-0011")).thenReturn(false);
         inventoryConsumer.consume(inventoryEvent);
         // TODO: verify inventoryService.removeStock() được gọi 1 lần
-        verify(inventoryService, times(1)).removeStock(any(InventoryRequest.class));
+        verify(inventoryService, times(1)).removeStock(any(InventoryRequest.class), anyString());
         // TODO: verify inventoryService.addStock() KHÔNG được gọi
         verify(inventoryService, never()).addStock(any(InventoryRequest.class));
     }
@@ -44,28 +54,31 @@ class InventoryConsumerTest {
     @DisplayName("2. Nhận sự kiện INBOUND → gọi addStock thành công")
     void consume_InboundEvent_ShouldCallAddStock() {
         // TODO: Tạo InventoryEvent với actionType = "INBOUND"
-        InventoryEvent inventoryEvent = new InventoryEvent(1L, 1L, 1L, 10, "INBOUND", "ORDER-001");
+        InventoryEvent inventoryEvent = new InventoryEvent(1L, 1L, 1L, 10, "INBOUND", 1L, "",
+                "ORDER-001");
         // TODO: Gọi inventoryConsumer.consume(event)
+        when(inventoryLogRepository.existsByOrderCode("ORDER-0011")).thenReturn(false);
         inventoryConsumer.consume(inventoryEvent);
         // TODO: verify inventoryService.addStock() được gọi 1 lần
         verify(inventoryService, times(1)).addStock(any(InventoryRequest.class));
         // TODO: verify inventoryService.removeStock() KHÔNG được gọi
-        verify(inventoryService, never()).removeStock(any(InventoryRequest.class));
+        verify(inventoryService, never()).removeStock(any(InventoryRequest.class), anyString());
     }
 
-    // Case 3: removeStock() bị lỗi → Consumer phải ném lại exception (để Kafka
-    // retry)
+    // Case 3: removeStock() bị lỗi → Consumer phải ném lại exception (để Kafka retry)
     @Test
     @DisplayName("3. removeStock lỗi → Consumer ném lại exception cho Kafka retry")
     void consume_FailedEvent_ShouldThrowException() {
         // TODO: Tạo InventoryEvent với actionType = "OUTBOUND"
-        InventoryEvent inventoryEvent = new InventoryEvent(1L, 1L, 1L, 10, "OUTBOUND", "ORDER-001");
+        InventoryEvent inventoryEvent = new InventoryEvent(1L, 1L, 1L, 10, "OUTBOUND", 1L, "",
+                "ORDER-001");
+        when(inventoryLogRepository.existsByOrderCode("ORDER-0011")).thenReturn(false);
         // TODO: Dùng when(...).thenThrow() để giả lập removeStock() bị lỗi
-        when(inventoryService.removeStock(any(InventoryRequest.class)))
+        when(inventoryService.removeStock(any(InventoryRequest.class), anyString()))
                 .thenThrow(new RuntimeException("Lỗi kết nối DB"));
         // TODO: assertThrows(RuntimeException.class, () ->
         // inventoryConsumer.consume(event))
         assertThrows(RuntimeException.class, () -> inventoryConsumer.consume(inventoryEvent));
     }
-
 }
+

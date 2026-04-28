@@ -45,4 +45,20 @@ public class HandleRuntimeException {
         return ApiResponse.error(400, "Lỗi dữ liệu đầu vào: " + error);
     }
 
+    @ExceptionHandler(ProductException.class)
+    public ApiResponse<String> handleProductException(ProductException e) {
+        return ApiResponse.error(400, e.getMessage());
+    }
+
+    @ExceptionHandler(WarehouseException.class)
+    public ApiResponse<String> handleWarehouseException(WarehouseException e) {
+        return ApiResponse.error(400, e.getMessage());
+    }
+
+    @ExceptionHandler(WarehouseZoneException.class)
+    public ApiResponse<String> handleWarehouseZoneException(WarehouseZoneException e) {
+        return ApiResponse.error(400, e.getMessage());
+    }
+
+    
 }

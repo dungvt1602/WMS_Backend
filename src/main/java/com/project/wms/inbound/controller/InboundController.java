@@ -2,6 +2,7 @@ package com.project.wms.inbound.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,6 +26,7 @@ public class InboundController {
 
     // tạo phiếu nhập kho
     @PostMapping
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER','ROLE_USER')")
     public ResponseEntity<ApiResponse<InboundResponse>> createOrder(@Valid @RequestBody InboundRequest request) {
         InboundResponse inboundResponse = inboundService.createOrder(request);
         // Trả về 201 Created kèm dữ liệu đã bọc trong ApiResponse
@@ -35,9 +37,18 @@ public class InboundController {
 
     // Hoan thanh phieu nhap kho
     @PatchMapping("/{orderId}/complete")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER','ROLE_USER')")
     public ResponseEntity<ApiResponse<InboundResponse>> completeOrder(
             @PathVariable Long orderId, @RequestBody Long zoneId) {
         InboundResponse response = inboundService.completeOrder(orderId, zoneId);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    // Huy phieu nhap kho
+    @PatchMapping("/{orderId}/cancel")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
+    public ResponseEntity<ApiResponse<InboundResponse>> cancelOrder(@PathVariable Long orderId) {
+        InboundResponse response = inboundService.cancelOrder(orderId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

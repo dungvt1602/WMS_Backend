@@ -30,13 +30,6 @@ public class InventoryController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
     }
 
-    // tạo controller xuất kho
-    @PostMapping("/remove")
-    public ResponseEntity<ApiResponse<InventoryResponse>> removeStock(@Valid @RequestBody InventoryRequest iRequest) {
-        InventoryResponse response = inventoryService.removeStock(iRequest);
-        return ResponseEntity.ok(ApiResponse.success(response));
-    }
-
     // Tạo controller chuyển kho
     @PostMapping("/transfer")
     public ResponseEntity<ApiResponse<InventoryTransferResponse>> transferStock(
