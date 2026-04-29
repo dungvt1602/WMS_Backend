@@ -3,6 +3,7 @@ package com.project.wms.auth.security;
 import java.time.Instant;
 import java.util.Date;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -15,13 +16,17 @@ import javax.crypto.SecretKey;
 @Service
 public class JwtService {
 
-    private static final String SECRET_KEY = "YourSuperSecretKeyForWMSProject2026WithoutUnderscores";
+    @Value("${jwt.secret}")
+    private String secretKey;
+
+    @Value("${jwt.expiration}")
+    private long expirationMs;
 
     public String generateToken(UserDetails userDetails) {
         return Jwts.builder()
                 .subject(userDetails.getUsername()) // để nhận biết người nào
                 .issuedAt(new Date(System.currentTimeMillis())) // thời gian tạo token
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24)) // thời gian hết hạn token
+                .expiration(new Date(System.currentTimeMillis() + expirationMs)) // thời gian hết hạn token
                 .signWith(getSignInKey())
                 .compact();
     }
@@ -67,7 +72,7 @@ public class JwtService {
     }
 
     private SecretKey getSignInKey() {
-        byte[] keyByte = Decoders.BASE64.decode(SECRET_KEY); // chuyển chuỗi thành dạng nhị phân
+        byte[] keyByte = Decoders.BASE64.decode(secretKey); // chuyển chuỗi thành dạng nhị phân
         return Keys.hmacShaKeyFor(keyByte); // tạo key từ mã nhị phân đó
     }
 }

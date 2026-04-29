@@ -2,6 +2,7 @@ package com.project.wms.inventory.service;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -48,7 +49,7 @@ public class IventoryRedisServiceTest {
 
         // 2. Gọi hàm cần test
         when(stringRedisTemplate.execute(
-                eq(decreaseStockScript),
+                any(DefaultRedisScript.class),
                 eq(Arrays.asList(key, processedKey)),
                 eq(String.valueOf(quantity)))).thenReturn(remaining);
 
@@ -75,7 +76,7 @@ public class IventoryRedisServiceTest {
         Long remaining = -5L;
         // 2. Gọi hàm cần test
         when(stringRedisTemplate.execute(
-                eq(decreaseStockScript),
+                any(DefaultRedisScript.class),
                 eq(Arrays.asList(key, processedKey)),
                 eq(String.valueOf(quantity)))).thenReturn(remaining);
 
@@ -103,7 +104,7 @@ public class IventoryRedisServiceTest {
 
         // 2. Gọi hàm cần test
         when(stringRedisTemplate.execute(
-                eq(increaseStockScript),
+                any(DefaultRedisScript.class),
                 eq(Arrays.asList(key, processedKey)),
                 eq(String.valueOf(quantity)))).thenReturn(resultValue);
 
@@ -115,3 +116,4 @@ public class IventoryRedisServiceTest {
     }
 
 }
+

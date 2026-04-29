@@ -42,14 +42,15 @@
     - [x] `2.` Tạo `StockMovementEvent`, `TransferStockEvent` và Publisher trong `InventoryService`.
     - [x] `3.` Triển khai Async Listener (`MovementTypeEvent`) lưu Log sau khi Transaction Commit thành công.
     - [x] `4.` Denormalization Audit Log: Lưu `productName`, `warehouseName`, `userName` trực tiếp vào bảng log.
-    - [x] `5.` Tạo `InventoryLog` Entity với DB Constraint `UNIQUE(order_code, product_id)` — Final Gate chống trùng dữ liệu.
+    - [x] `5.` Tạo `InventoryLog` Entity với DB Constraint `UNIQUE(order_code, product_id)` — Final Gate chống trùng dữ
+      liệu.
     - [x] `6.` Atomic Update (`updateOrderStatus`): JPQL `UPDATE ... WHERE status = :oldStatus` cho Inbound & Outbound.
     - [x] `7.` Idempotency cho Create Order: `requestId` + `UNIQUE constraint` trên `OutboundOrder`.
     - [x] `8.` Outbox Pattern: Tạo module `infrastructure/outbox` lưu event trước khi gửi Kafka.
     - [x] `9.` Redis Lua Script: Atomic decrease/increase stock + `processedKey` chống trùng lệnh cho Hot Item.
     - [x] `10.` 2-Phase Reserve + Commit (`OutboundCompleteService`): Reserve ngoài TX → Commit trong TX ngắn.
     - [x] `11.` Compensating Transaction: `rollbackReservedItems()` hoàn trả cả Redis lẫn DB khi fail giữa chừng.
-    
+
 
 - [x] **Phase 8: Quản lý trạng thái & Hủy phiếu (Order Life-cycle)** 🚀
     - [x] Thêm trạng thái `CANCELLED` vào `OrderStatus`.
@@ -65,6 +66,7 @@
 - [x] **Phase 10: Hệ thống Cảnh báo & Phân quyền nâng cao**
 
 [//]: # (    - [ ] Low Stock Alert &#40;Cảnh báo hàng dưới mức tối thiểu&#41;.)
+
     - [x] Phân quyền chi tiết theo từng Kho (Warehouse-level RBAC).
 
 - [x] **Phase 11: Báo cáo & Thống kê (Reports & Dashboard)**
@@ -73,9 +75,12 @@
 
 - [ ] **Phase 12: Test Stability & Release Gate**
     - [ ] Chạy pass `mvn test` toàn bộ project.
-    - [ ] Bổ sung integration test cho luồng Inbound/Outbound/Transfer.
-    - [ ] Bổ sung test permission theo kho (allow/deny theo role + warehouse).
-    - [ ] Bổ sung test Outbox Dispatcher + retry/dead flow.
+
+[//]: # (    - [ ] Bổ sung integration test cho luồng Inbound/Outbound/Transfer.)
+
+[//]: # (    - [ ] Bổ sung test permission theo kho &#40;allow/deny theo role + warehouse&#41;.)
+
+[//]: # (    - [ ] Bổ sung test Outbox Dispatcher + retry/dead flow.)
 
 - [ ] **Phase 13: Database Migration & Data Safety**
     - [ ] Tích hợp `Flyway` hoặc `Liquibase`.

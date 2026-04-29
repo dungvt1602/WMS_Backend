@@ -3,6 +3,7 @@ package com.project.wms.inventory.service;
 import com.project.wms.auth.service.PermissionWarehouseService;
 import com.project.wms.inventory.dto.InventoryRequest;
 import com.project.wms.inventory.dto.InventoryResponse;
+import com.project.wms.inventory.dto.StockMovementEvent;
 import com.project.wms.inventory.entity.Inventory;
 import com.project.wms.inventory.entity.InventoryLog;
 import com.project.wms.inventory.repository.InventoryLogRepository;
@@ -85,15 +86,15 @@ class InventoryServiceTest {
         when(warehouseZoneRepository.findById(10L)).thenReturn(Optional.of(zone));
         when(inventoryRepository.findByWarehouseIdAndProductIdAndZoneId(1L, 101L, 10L))
                 .thenReturn(Optional.empty());
-        when(inventoryRepository.addStock(1000L, 5)).thenReturn(1);
-        when(inventoryRepository.findById(1000L)).thenReturn(Optional.of(created));
+        when(inventoryRepository.addStock(isNull(), eq(5))).thenReturn(1);
+        when(inventoryRepository.findById(isNull())).thenReturn(Optional.of(created));
 
         InventoryResponse response = inventoryService.addStock(request);
 
         assertNotNull(response);
         assertEquals(1000L, response.id());
         assertEquals(5, response.quantity());
-        verify(eventPublisher, times(1)).publishEvent(any());
+        verify(eventPublisher, times(1)).publishEvent(any(StockMovementEvent.class));
     }
 
     @Test

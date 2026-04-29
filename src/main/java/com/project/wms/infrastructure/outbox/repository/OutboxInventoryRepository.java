@@ -3,7 +3,10 @@ package com.project.wms.infrastructure.outbox.repository;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.project.wms.infrastructure.outbox.dto.OutboxStatus;
 import com.project.wms.infrastructure.outbox.entity.OutboxInventory;
@@ -27,6 +30,8 @@ public interface OutboxInventoryRepository extends JpaRepository<OutboxInventory
      * Dùng để cleanup — xóa event SENT quá 7 ngày khỏi DB.
      * Gọi từ một @Scheduled riêng, chạy mỗi ngày 1 lần.
      */
-    @Query("DELETE FROM OutboxInventory e WHERE e.status = 'SENT' AND e.created_at < :cutoff")
-    void deleteOldSentEvents(java.time.LocalDateTime cutoff);
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM OutboxInventory e WHERE e.status = 'SENT' AND e.createdAt < :cutoff")
+    int deleteOldSentEvents(@Param("cutoff") java.time.LocalDateTime cutoff);
 }

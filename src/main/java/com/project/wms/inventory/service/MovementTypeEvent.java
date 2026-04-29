@@ -2,6 +2,7 @@ package com.project.wms.inventory.service;
 
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -29,7 +30,7 @@ public class MovementTypeEvent { // Class nay dung de cap nhap log
 
     // HAM NAY dung de ghi log bien dong so du cua inbound va outbound thoi
     @Async
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT) // sau khi commit xong thi moi goi ham nay
     public void handleStockMovementEvent(StockMovementEvent event) {
         log.info("Ghi log bien dong so du cho: " + event.productName());
@@ -60,7 +61,7 @@ public class MovementTypeEvent { // Class nay dung de cap nhap log
     // ham nay xau de luu bien dong so du cua transfer zone chuyen kho noi bo va
     // chuyen kho ngoai
     @Async
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT) // sau khi commit xong thi moi goi ham nay
     public void handleStockTransferMovementEvent(TransferStockEvent event) {
         log.info("Ghi log bien dong so du cho: " + event.productName());
