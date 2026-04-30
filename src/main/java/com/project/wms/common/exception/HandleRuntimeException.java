@@ -60,5 +60,10 @@ public class HandleRuntimeException {
         return ApiResponse.error(400, e.getMessage());
     }
 
-    
+    @ExceptionHandler(LoginRateLimitExceededException.class)
+    public ApiResponse<String> handleLoginRateLimitExceededException(LoginRateLimitExceededException e) {
+        return ApiResponse.error(429, e.getMessage());
+    }
+
+
 }

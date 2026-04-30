@@ -3,9 +3,10 @@ package com.project.wms.auth.security;
 import java.time.Instant;
 import java.util.Date;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
+import com.project.wms.auth.config.JwtTokenProperties;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -16,22 +17,21 @@ import javax.crypto.SecretKey;
 @Service
 public class JwtService {
 
-    @Value("${jwt.secret}")
-    private String secretKey;
+    private final JwtTokenProperties jwtTokenProperties;
 
-    @Value("${jwt.expiration}")
-    private long expirationMs;
+    public JwtService(JwtTokenProperties jwtTokenProperties) {
+        this.jwtTokenProperties = jwtTokenProperties;
+    }
 
     public String generateToken(UserDetails userDetails) {
         return Jwts.builder()
-                .subject(userDetails.getUsername()) // để nhận biết người nào
-                .issuedAt(new Date(System.currentTimeMillis())) // thời gian tạo token
-                .expiration(new Date(System.currentTimeMillis() + expirationMs)) // thời gian hết hạn token
+                .subject(userDetails.getUsername())
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + jwtTokenProperties.accessTokenExpirationMs()))
                 .signWith(getSignInKey())
                 .compact();
     }
 
-    // lay tên user từ token
     public String extractUsername(String token) {
         try {
             return Jwts.parser().verifyWith(getSignInKey())
@@ -48,9 +48,6 @@ public class JwtService {
 
     public Boolean isTokenValid(String token, UserDetails userDetails) {
         String username = extractUsername(token);
-        // Tránh lỗi NullPointerException nếu token bị sai/hết hạn và username trả về
-        // null
-        // Đồng thời phải kiểm tra xem token còn hạn không
         return (username != null && username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
@@ -65,14 +62,13 @@ public class JwtService {
                     .getExpiration();
             return expiration.toInstant().isBefore(Instant.now());
         } catch (Exception e) {
-            // Nếu lỗi (hết hạn, sai key...) thì coi như token không còn hiệu lực
             return true;
         }
 
     }
 
     private SecretKey getSignInKey() {
-        byte[] keyByte = Decoders.BASE64.decode(secretKey); // chuyển chuỗi thành dạng nhị phân
-        return Keys.hmacShaKeyFor(keyByte); // tạo key từ mã nhị phân đó
+        byte[] keyByte = Decoders.BASE64.decode(jwtTokenProperties.secret());
+        return Keys.hmacShaKeyFor(keyByte);
     }
 }

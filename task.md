@@ -1,4 +1,4 @@
-# WMS Project Implementation Checklist
+﻿# WMS Project Implementation Checklist
 
 - [x] **Phase 1: Core Infrastructure & Shared Setup**
     - [x] Setup `BaseEntity` with JPA Auditing.
@@ -29,85 +29,89 @@
 
 ---
 
-### 🚀 Giai đoạn hiện tại đang làm
+### ðŸš€ Giai Ä‘oáº¡n hiá»‡n táº¡i Ä‘ang lÃ m
 
-- [x] **Phase 6: Tích hợp Redis Caching (Truy xuất siêu tốc)**
-    - [x] `1.` Mở file `WmsApplication.java` và bật `@EnableCaching`.
-    - [x] `2.` Tạo file cấu hình `RedisConfig.java` để ép dữ liệu cache thành định dạng JSON chuẩn.
-    - [x] `3.` Cập nhật `ProductService`: Gắn `@Cacheable` cho hàm Get và `@CacheEvict` cho hàm Create/Update/Delete.
-    - [x] `4.` Cập nhật `WarehouseService`: Gắn Annotation tương tự cho Kho hàng.
+- [x] **Phase 6: TÃ­ch há»£p Redis Caching (Truy xuáº¥t siÃªu tá»‘c)**
+    - [x] `1.` Má»Ÿ file `WmsApplication.java` vÃ báº­t `@EnableCaching`.
+    - [x] `2.` Táº¡o file cáº¥u hÃ¬nh `RedisConfig.java` Ä‘á»ƒ Ã©p dá»¯ liá»‡u cache thÃ nh Ä‘á»‹nh dáº¡ng JSON chuáº©n.
+    - [x] `3.` Cáº­p nháº­t `ProductService`: Gáº¯n `@Cacheable` cho hÃ m Get vÃ`@CacheEvict` cho hÃ m
+      Create/Update/Delete.
+    - [x] `4.` Cáº­p nháº­t `WarehouseService`: Gáº¯n Annotation tÆ°Æ¡ng tá»± cho Kho hÃ ng.
 
-- [/] **Phase 7: Nâng cấp Scalability & Data Integrity (Production-grade)**
-    - [x] `1.` Cấu hình `@TransactionalEventListener(phase = AFTER_COMMIT)` cho việc ghi Log.
-    - [x] `2.` Tạo `StockMovementEvent`, `TransferStockEvent` và Publisher trong `InventoryService`.
-    - [x] `3.` Triển khai Async Listener (`MovementTypeEvent`) lưu Log sau khi Transaction Commit thành công.
-    - [x] `4.` Denormalization Audit Log: Lưu `productName`, `warehouseName`, `userName` trực tiếp vào bảng log.
-    - [x] `5.` Tạo `InventoryLog` Entity với DB Constraint `UNIQUE(order_code, product_id)` — Final Gate chống trùng dữ
-      liệu.
+- [/] **Phase 7: NÃ¢ng cáº¥p Scalability & Data Integrity (Production-grade)**
+    - [x] `1.` Cáº¥u hÃ¬nh `@TransactionalEventListener(phase = AFTER_COMMIT)` cho viá»‡c ghi Log.
+    - [x] `2.` Táº¡o `StockMovementEvent`, `TransferStockEvent` vÃ Publisher trong `InventoryService`.
+    - [x] `3.` Triá»ƒn khai Async Listener (`MovementTypeEvent`) lÆ°u Log sau khi Transaction Commit thÃ nh cÃ´ng.
+    - [x] `4.` Denormalization Audit Log: LÆ°u `productName`, `warehouseName`, `userName` trá»±c tiáº¿p vÃ o báº£ng log.
+    - [x] `5.` Táº¡o `InventoryLog` Entity vá»›i DB Constraint `UNIQUE(order_code, product_id)` â€” Final Gate chá»‘ng
+      trÃ¹ng dá»¯
+      liá»‡u.
     - [x] `6.` Atomic Update (`updateOrderStatus`): JPQL `UPDATE ... WHERE status = :oldStatus` cho Inbound & Outbound.
-    - [x] `7.` Idempotency cho Create Order: `requestId` + `UNIQUE constraint` trên `OutboundOrder`.
-    - [x] `8.` Outbox Pattern: Tạo module `infrastructure/outbox` lưu event trước khi gửi Kafka.
-    - [x] `9.` Redis Lua Script: Atomic decrease/increase stock + `processedKey` chống trùng lệnh cho Hot Item.
-    - [x] `10.` 2-Phase Reserve + Commit (`OutboundCompleteService`): Reserve ngoài TX → Commit trong TX ngắn.
-    - [x] `11.` Compensating Transaction: `rollbackReservedItems()` hoàn trả cả Redis lẫn DB khi fail giữa chừng.
+    - [x] `7.` Idempotency cho Create Order: `requestId` + `UNIQUE constraint` trÃªn `OutboundOrder`.
+    - [x] `8.` Outbox Pattern: Táº¡o module `infrastructure/outbox` lÆ°u event trÆ°á»›c khi gá»­i Kafka.
+    - [x] `9.` Redis Lua Script: Atomic decrease/increase stock + `processedKey` chá»‘ng trÃ¹ng lá»‡nh cho Hot Item.
+    - [x] `10.` 2-Phase Reserve + Commit (`OutboundCompleteService`): Reserve ngoÃ i TX â†’ Commit trong TX ngáº¯n.
+    - [x] `11.` Compensating Transaction: `rollbackReservedItems()` hoÃ n tráº£ cáº£ Redis láº«n DB khi fail giá»¯a
+      chá»«ng.
 
 
-- [x] **Phase 8: Quản lý trạng thái & Hủy phiếu (Order Life-cycle)** 🚀
-    - [x] Thêm trạng thái `CANCELLED` vào `OrderStatus`.
-    - [x] Triển khai hàm `cancelOrder` cho Inbound (PENDING -> CANCELLED).
-    - [x] Triển khai hàm `cancelOrder` cho Outbound (PENDING -> CANCELLED).
+- [x] **Phase 8: Quáº£n lÃ½ tráº¡ng thÃ¡i & Há»§y phiáº¿u (Order Life-cycle)** ðŸš€
+    - [x] ThÃªm tráº¡ng thÃ¡i `CANCELLED` vÃ o `OrderStatus`.
+    - [x] Triá»ƒn khai hÃ m `cancelOrder` cho Inbound (PENDING -> CANCELLED).
+    - [x] Triá»ƒn khai hÃ m `cancelOrder` cho Outbound (PENDING -> CANCELLED).
 
-[//]: # (- [ ] **Phase 9: Quản lý Vận chuyển &#40;Shipping & Carrier&#41;** 🚀)
+[//]: # (- [ ] **Phase 9: Quáº£n lÃ½ Váº­n chuyá»ƒn &#40;Shipping & Carrier&#41;** ðŸš€)
 
-[//]: # (    - [ ] Tạo module `Carrier` quản lý đơn vị vận chuyển &#40;GHTK, Viettel Post, v.v.&#41;.)
+[//]: # (    - [ ] Táº¡o module `Carrier` quáº£n lÃ½ Ä‘Æ¡n vá»‹ váº­n chuyá»ƒn &#40;GHTK, Viettel Post, v.v.&#41;.)
 
-[//]: # (    - [ ] Gắn thông tin vận chuyển vào phiếu Xuất kho &#40;`trackingNumber`, `shippingFee`&#41;.)
+[//]: # (    - [ ] Gáº¯n thÃ´ng tin váº­n chuyá»ƒn vÃ o phiáº¿u Xuáº¥t kho &#40;`trackingNumber`, `shippingFee`&#41;.)
 
-- [x] **Phase 10: Hệ thống Cảnh báo & Phân quyền nâng cao**
+- [x] **Phase 10: Há»‡ thá»‘ng Cáº£nh bÃ¡o & PhÃ¢n quyá»n nÃ¢ng cao**
 
-[//]: # (    - [ ] Low Stock Alert &#40;Cảnh báo hàng dưới mức tối thiểu&#41;.)
+[//]: # (    - [ ] Low Stock Alert &#40;Cáº£nh bÃ¡o hÃ ng dÆ°á»›i má»©c tá»‘i thiá»ƒu&#41;.)
 
-    - [x] Phân quyền chi tiết theo từng Kho (Warehouse-level RBAC).
+    - [x] PhÃ¢n quyá»n chi tiáº¿t theo tá»«ng Kho (Warehouse-level RBAC).
 
-- [x] **Phase 11: Báo cáo & Thống kê (Reports & Dashboard)**
-    - [x] Hoàn thiện `InventoryReportService`.
-    - [x] API Dashboard tổng hợp.
+- [x] **Phase 11: BÃ¡o cÃ¡o & Thá»‘ng kÃª (Reports & Dashboard)**
+    - [x] HoÃ n thiá»‡n `InventoryReportService`.
+    - [x] API Dashboard tá»•ng há»£p.
 
 - [ ] **Phase 12: Test Stability & Release Gate**
-    - [ ] Chạy pass `mvn test` toàn bộ project.
+    - [ ] Cháº¡y pass `mvn test` toÃ n bá»™ project.
 
-[//]: # (    - [ ] Bổ sung integration test cho luồng Inbound/Outbound/Transfer.)
+[//]: # (    - [ ] Bá»• sung integration test cho luá»“ng Inbound/Outbound/Transfer.)
 
-[//]: # (    - [ ] Bổ sung test permission theo kho &#40;allow/deny theo role + warehouse&#41;.)
+[//]: # (    - [ ] Bá»• sung test permission theo kho &#40;allow/deny theo role + warehouse&#41;.)
 
-[//]: # (    - [ ] Bổ sung test Outbox Dispatcher + retry/dead flow.)
+[//]: # (    - [ ] Bá»• sung test Outbox Dispatcher + retry/dead flow.)
 
 - [ ] **Phase 13: Database Migration & Data Safety**
-    - [ ] Tích hợp `Flyway` hoặc `Liquibase`.
-    - [ ] Tắt `ddl-auto=update` ở môi trường production.
-    - [ ] Chuẩn hóa index/unique constraint cho bảng lớn (`inv_`, `outbox_`, `auth_` mapping).
-    - [ ] Thiết kế và kiểm thử backup/restore định kỳ.
+    - [ ] TÃ­ch há»£p `Flyway` hoáº·c `Liquibase`.
+    - [ ] Táº¯t `ddl-auto=update` á»Ÿ mÃ´i trÆ°á»ng production.
+    - [ ] Chuáº©n hÃ³a index/unique constraint cho báº£ng lá»›n (`inv_`, `outbox_`, `auth_` mapping).
+    - [ ] Thiáº¿t káº¿ vÃ kiá»ƒm thá»­ backup/restore Ä‘á»‹nh ká»³.
 
 - [ ] **Phase 14: Security Hardening**
-    - [ ] Đưa JWT secret/config nhạy cảm ra env/secret manager.
-    - [ ] Thiết lập chính sách JWT TTL + rotation.
-    - [ ] Thêm rate limit cho endpoint auth/login.
-    - [ ] Audit log cho thao tác admin (grant/revoke permission).
+    - [/] Đưa JWT secret/config nhạy cảm ra env/secret manager. (Code/config đã sẵn sàng, runtime secret manager cho
+      prod: pending)
+    - [x] Thiáº¿t láº­p chÃ­nh sÃ¡ch JWT TTL + rotation.
+    - [x] ThÃªm rate limit cho endpoint auth/login.
+    - [ ] Audit log cho thao tÃ¡c admin (grant/revoke permission).
 
 - [ ] **Phase 15: Event Reliability & Idempotency**
-    - [ ] Giám sát và xử lý `outbox DEAD` (manual replay/re-drive).
-    - [ ] Rà soát idempotency end-to-end cho consumer.
-    - [ ] Chuẩn hóa retry/backoff cho producer/consumer Kafka.
-    - [ ] Viết runbook xử lý lệch tồn kho do event fail.
+    - [ ] GiÃ¡m sÃ¡t vÃ xá»­ lÃ½ `outbox DEAD` (manual replay/re-drive).
+    - [ ] RÃ soÃ¡t idempotency end-to-end cho consumer.
+    - [ ] Chuáº©n hÃ³a retry/backoff cho producer/consumer Kafka.
+    - [ ] Viáº¿t runbook xá»­ lÃ½ lá»‡ch tá»“n kho do event fail.
 
 - [ ] **Phase 16: Observability & Monitoring**
-    - [ ] Metrics ứng dụng: latency, error rate, throughput.
-    - [ ] Metrics hạ tầng: DB pool, Kafka lag, Redis hit ratio.
+    - [ ] Metrics á»©ng dá»¥ng: latency, error rate, throughput.
+    - [ ] Metrics háº¡ táº§ng: DB pool, Kafka lag, Redis hit ratio.
     - [ ] Structured logging + `traceId/correlationId`.
     - [ ] Alerting cho low stock, outbox dead, consumer failure, DB saturation.
 
 - [ ] **Phase 17: Deployment & Go-Live Readiness**
-    - [ ] Tách profile `dev/staging/prod` và externalize config.
+    - [ ] TÃ¡ch profile `dev/staging/prod` vÃ externalize config.
     - [ ] CI/CD pipeline: build, test, scan, migrate, smoke test.
-    - [ ] Chuẩn hóa chiến lược rollback release.
-    - [ ] Hoàn thiện runbook vận hành và incident response.
+    - [ ] Chuáº©n hÃ³a chiáº¿n lÆ°á»£c rollback release.
+    - [ ] HoÃ n thiá»‡n runbook váº­n hÃ nh vÃ incident response.
