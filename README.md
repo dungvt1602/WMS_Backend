@@ -1,276 +1,278 @@
-﻿# ðŸ“¦ Há»‡ Thá»‘ng Quáº£n LÃ½ Kho (WMS)
+﻿# 📦 Hệ Thống Quản Lý Kho (WMS)
 
-## 1. Giá»›i thiá»‡u
+## 1. Giới thiệu
 
-ÄÃ¢y lÃ  dá»± Ã¡n backend mÃ´ phá»ng há»‡ thá»‘ng quáº£n lÃ½ kho (Warehouse Management System â€“ WMS).
+Đây là dự án backend mô phỏng hệ thống quản lý kho (Warehouse Management System – WMS).
 
-Má»¥c tiÃªu cá»§a dá»± Ã¡n khÃ´ng chá»‰ dá»«ng á»Ÿ viá»‡c xÃ¢y dá»±ng CRUD cÆ¡ báº£n, mÃ  táº­p trung vÃ o viá»‡c rÃ¨n luyá»‡n cÃ¡c kiáº¿n thá»©c ná»n táº£ng cá»§a backend nhÆ°:
+Mục tiêu của dự án không chỉ dừng ở việc xây dựng CRUD cơ bản, mà tập trung vào việc rèn luyện các kiến thức nền tảng của backend như:
 
-- Quáº£n lÃ½ transaction
-- Xá»­ lÃ½ concurrency
-- Äáº£m báº£o tÃ­nh toÃ n váº¹n dá»¯ liá»‡u
-- PhÃ¢n quyá»n ngÆ°á»i dÃ¹ng (RBAC)
-- Thiáº¿t káº¿ kiáº¿n trÃºc Modular Monolith
+- Quản lý transaction
+- Xử lý concurrency
+- Đảm bảo tính toàn vẹn dữ liệu
+- Phân quyền người dùng (RBAC)
+- Thiết kế kiến trúc Modular Monolith
 
-Dá»± Ã¡n Ä‘Æ°á»£c xÃ¢y dá»±ng vá»›i Ä‘á»‹nh hÆ°á»›ng phÃ¡t triá»ƒn tá»« Junior lÃªn Mid-level backend developer.
+Dự án được xây dựng với định hướng phát triển từ Junior lên Mid-level backend developer.
 
 ---
 
-## 2. Pháº¡m vi nghiá»‡p vá»¥
+## 2. Phạm vi nghiệp vụ
 
-**Há»‡ thá»‘ng há»— trá»£ cÃ¡c chá»©c nÄƒng cÆ¡ báº£n:**
+**Hệ thống hỗ trợ các chức năng cơ bản:**
 
-- Quáº£n lÃ½ sáº£n pháº©m
-- ÄÄƒng nháº­p / Ä‘Äƒng kÃ½ ngÆ°á»i dÃ¹ng
-- Quáº£n lÃ½ tá»“n kho theo tá»«ng kho
-- Nháº­p kho (Inbound)
-- Xuáº¥t kho (Outbound)
-- LÆ°u lá»‹ch sá»­ biáº¿n Ä‘á»™ng tá»“n kho
-- XÃ¡c thá»±c vÃ  phÃ¢n quyá»n ngÆ°á»i dÃ¹ng
+- Quản lý sản phẩm
+- Đăng nhập / đăng ký người dùng
+- Quản lý tồn kho theo từng kho
+- Nhập kho (Inbound)
+- Xuất kho (Outbound)
+- Lưu lịch sử biến động tồn kho
+- Xác thực và phân quyền người dùng
 
-**KhÃ´ng bao gá»“m:**
+**Không bao gồm:**
 
-- Giao diá»‡n frontend
+- Giao diện frontend
 - Microservices
-- Há»‡ thá»‘ng phÃ¢n tÃ¡n
+- Hệ thống phân tán
 
 ---
 
-## 3. Chá»©c nÄƒng chÃ­nh
+## 3. Chức năng chính
 
-### 3.1 Quáº£n lÃ½ tá»“n kho
+### 3.1 Quản lý tồn kho
 
-- Theo dÃµi sá»‘ lÆ°á»£ng tá»“n theo tá»«ng sáº£n pháº©m vÃ  kho
-- Má»—i báº£n ghi tá»“n kho Ä‘Æ°á»£c quáº£n lÃ½ theo cáº·p `(product_id, warehouse_id)`
-- KhÃ´ng cho phÃ©p xuáº¥t Ã¢m kho (validate táº¡i service layer vÃ  rÃ ng buá»™c logic)
-- LÆ°u log biáº¿n Ä‘á»™ng tá»“n kho (Stock Movement Log)
-- Äáº£m báº£o toÃ n váº¹n dá»¯ liá»‡u báº±ng:
-    - KhÃ³a ngoáº¡i (Foreign Key)
+- Theo dõi số lượng tồn theo từng sản phẩm và kho
+- Mỗi bản ghi tồn kho được quản lý theo cặp `(product_id, warehouse_id)`
+- Không cho phép xuất âm kho (validate tại service layer và ràng buộc logic)
+- Lưu log biến động tồn kho (Stock Movement Log)
+- Đảm bảo toàn vẹn dữ liệu bằng:
+    - Khóa ngoại (Foreign Key)
     - Unique constraint
-    - Optimistic locking Ä‘á»ƒ trÃ¡nh lost update
+    - Optimistic locking để tránh lost update
 
-### 3.2 Nháº­p kho (Inbound)
+### 3.2 Nhập kho (Inbound)
 
-- TÄƒng sá»‘ lÆ°á»£ng tá»“n kho tÆ°Æ¡ng á»©ng
-- Ghi nháº­n má»™t báº£n ghi Stock Movement loáº¡i `INBOUND`
-- Thá»±c thi toÃ n bá»™ logic trong má»™t transaction:
-    - Cáº­p nháº­t tá»“n kho
-    - LÆ°u log biáº¿n Ä‘á»™ng
-    - Rollback toÃ n bá»™ náº¿u cÃ³ lá»—i xáº£y ra trong quÃ¡ trÃ¬nh xá»­ lÃ½
+- Tăng số lượng tồn kho tương ứng
+- Ghi nhận một bản ghi Stock Movement loại `INBOUND`
+- Thực thi toàn bộ logic trong một transaction:
+    - Cập nhật tồn kho
+    - Lưu log biến động
+    - Rollback toàn bộ nếu có lỗi xảy ra trong quá trình xử lý
 
-### 3.3 Xuáº¥t kho (Outbound)
+### 3.3 Xuất kho (Outbound)
 
-- Giáº£m sá»‘ lÆ°á»£ng tá»“n kho
-- Kiá»ƒm tra Ä‘á»§ sá»‘ lÆ°á»£ng trÆ°á»›c khi xuáº¥t
-- KhÃ´ng cho phÃ©p xuáº¥t náº¿u tá»“n kho khÃ´ng Ä‘á»§
-- Ghi nháº­n má»™t báº£n ghi Stock Movement loáº¡i `OUTBOUND`
-- Äáº£m báº£o an toÃ n khi cÃ³ nhiá»u request Ä‘á»“ng thá»i:
-    - Sá»­ dá»¥ng optimistic locking Ä‘á»ƒ trÃ¡nh lost update
-    - Äáº·t ranh giá»›i transaction táº¡i service layer
-    - Náº¿u cÃ³ xung Ä‘á»™t version: transaction bá»‹ rollback, client cÃ³ thá»ƒ retry
-- Xá»­ lÃ½ lá»—i: náº¿u báº¥t ká»³ bÆ°á»›c nÃ o tháº¥t báº¡i â†’ toÃ n bá»™ transaction sáº½ rollback
+- Giảm số lượng tồn kho
+- Kiểm tra đủ số lượng trước khi xuất
+- Không cho phép xuất nếu tồn kho không đủ
+- Ghi nhận một bản ghi Stock Movement loại `OUTBOUND`
+- Đảm bảo an toàn khi có nhiều request đồng thời:
+    - Sử dụng optimistic locking để tránh lost update
+    - Đặt ranh giới transaction tại service layer
+    - Nếu có xung đột version: transaction bị rollback, client có thể retry
+- Xử lý lỗi: nếu bất kỳ bước nào thất bại → toàn bộ transaction sẽ rollback
 
-### 3.4 XÃ¡c thá»±c & PhÃ¢n quyá»n
+### 3.4 Xác thực & Phân quyền
 
-**XÃ¡c thá»±c:**
+**Xác thực:**
 
-- Sá»­ dá»¥ng JWT (JSON Web Token)
-- Token cÃ³ thá»i gian háº¿t háº¡n
-- Máº­t kháº©u Ä‘Æ°á»£c mÃ£ hÃ³a báº±ng BCrypt
+- Sử dụng JWT (JSON Web Token)
+- Token có thời gian hết hạn
+- Mật khẩu được mã hóa bằng BCrypt
 
-**PhÃ¢n quyá»n (RBAC):**
+**Phân quyền (RBAC):**
 
-Há»‡ thá»‘ng há»— trá»£ 3 vai trÃ² chÃ­nh:
+Hệ thống hỗ trợ 3 vai trò chính:
 
-| Vai trÃ² | Quyá»n háº¡n |
+| Vai trò | Quyền hạn |
 |---------|-----------|
-| **Admin** | Quáº£n lÃ½ sáº£n pháº©m, quáº£n lÃ½ kho, thá»±c hiá»‡n nháº­p/xuáº¥t kho, quáº£n lÃ½ ngÆ°á»i dÃ¹ng |
-| **Staff** | Thá»±c hiá»‡n nháº­p/xuáº¥t kho, xem tá»“n kho |
-| **Viewer** | Chá»‰ xem thÃ´ng tin tá»“n kho |
+| **Admin** | Quản lý sản phẩm, quản lý kho, thực hiện nhập/xuất kho, quản lý người dùng |
+| **Staff** | Thực hiện nhập/xuất kho, xem tồn kho |
+| **Viewer** | Chỉ xem thông tin tồn kho |
 
-PhÃ¢n quyá»n Ä‘Æ°á»£c kiá»ƒm tra táº¡i service hoáº·c security layer trÆ°á»›c khi xá»­ lÃ½ nghiá»‡p vá»¥.
+Phân quyền được kiểm tra tại service hoặc security layer trước khi xử lý nghiệp vụ.
 
 ---
 
-## 4. CÃ´ng nghá»‡ sá»­ dá»¥ng
+## 4. Công nghệ sử dụng
 
-| CÃ´ng nghá»‡ | Má»¥c Ä‘Ã­ch |
+| Công nghệ | Mục đích |
 |-----------|----------|
-| Java / Spring Boot | Framework chÃ­nh |
+| Java / Spring Boot | Framework chính |
 | JPA / Hibernate | ORM |
-| PostgreSQL / MySQL | CÆ¡ sá»Ÿ dá»¯ liá»‡u |
-| JWT | XÃ¡c thá»±c |
+| PostgreSQL / MySQL | Cơ sở dữ liệu |
+| JWT | Xác thực |
 | Maven | Build tool |
-| Docker | Container hÃ³a |
+| Docker | Container hóa |
 | Redis | Cache / Distributed locking |
 
 ---
 
-## 5. Kiáº¿n trÃºc há»‡ thá»‘ng
+## 5. Kiến trúc hệ thống
 
-Há»‡ thá»‘ng Ä‘Æ°á»£c thiáº¿t káº¿ theo mÃ´ hÃ¬nh **Modular Monolith**:
+Hệ thống được thiết kế theo mô hình **Modular Monolith**:
 
-- Triá»ƒn khai dÆ°á»›i dáº¡ng má»™t á»©ng dá»¥ng duy nháº¥t
+- Triển khai dưới dạng một ứng dụng duy nhất
 - Chia module theo domain: `auth`, `inventory`, `inbound`, `outbound`
-- PhÃ¢n tÃ¡ch rÃµ rÃ ng service layer
-- Sá»­ dá»¥ng rÃ ng buá»™c database Ä‘á»ƒ Ä‘áº£m báº£o tÃ­nh toÃ n váº¹n dá»¯ liá»‡u
+- Phân tách rõ ràng service layer
+- Sử dụng ràng buộc database để đảm bảo tính toàn vẹn dữ liệu
 
-> Chi tiáº¿t hÆ¡n Ä‘Æ°á»£c mÃ´ táº£ trong file `ARCHITECTURE.md`.
+> Chi tiết hơn được mô tả trong file `ARCHITECTURE.md`.
 
 ---
 
-## 6. Thiáº¿t káº¿ cÆ¡ sá»Ÿ dá»¯ liá»‡u
+## 6. Thiết kế cơ sở dữ liệu
 
-Há»‡ thá»‘ng Ä‘Æ°á»£c thiáº¿t káº¿ theo hÆ°á»›ng Ä‘áº£m báº£o tÃ­nh toÃ n váº¹n dá»¯ liá»‡u, kháº£ nÄƒng má»Ÿ rá»™ng vÃ  an toÃ n khi xá»­ lÃ½ Ä‘á»“ng thá»i.
+Hệ thống được thiết kế theo hướng đảm bảo tính toàn vẹn dữ liệu, khả năng mở rộng và an toàn khi xử lý đồng thời.
 
-### 6.1 MÃ´ hÃ¬nh quáº£n lÃ½ tá»“n kho
+### 6.1 Mô hình quản lý tồn kho
 
-Tá»“n kho Ä‘Æ°á»£c quáº£n lÃ½ theo tá»«ng cáº·p `(product, warehouse)`. Má»—i báº£n ghi tá»“n kho Ä‘áº¡i diá»‡n cho sá»‘ lÆ°á»£ng hiá»‡n táº¡i cá»§a má»™t sáº£n pháº©m táº¡i má»™t kho cá»¥ thá»ƒ.
+Tồn kho được quản lý theo từng cặp `(product, warehouse)`. Mỗi bản ghi tồn kho đại diện cho số lượng hiện tại của một sản phẩm tại một kho cụ thể.
 
-**RÃ ng buá»™c:**
-- Unique constraint trÃªn `(product_id, warehouse_id)`
-- KhÃ´ng cho phÃ©p tá»“n kho Ã¢m á»Ÿ táº§ng nghiá»‡p vá»¥
+**Ràng buộc:**
+- Unique constraint trên `(product_id, warehouse_id)`
+- Không cho phép tồn kho âm ở tầng nghiệp vụ
 
-**Lá»£i Ã­ch:**
-- Dá»… má»Ÿ rá»™ng sang nhiá»u kho
-- TrÃ¡nh trÃ¹ng láº·p dá»¯ liá»‡u tá»“n kho
-- Äáº£m báº£o tÃ­nh nháº¥t quÃ¡n giá»¯a sáº£n pháº©m vÃ  vá»‹ trÃ­ lÆ°u trá»¯
+**Lợi ích:**
+- Dễ mở rộng sang nhiều kho
+- Tránh trùng lặp dữ liệu tồn kho
+- Đảm bảo tính nhất quán giữa sản phẩm và vị trí lưu trữ
 
 ### 6.2 Stock Movement Log
 
-Má»i thay Ä‘á»•i vá» tá»“n kho Ä‘á»u Ä‘Æ°á»£c ghi láº¡i trong báº£ng `stock_movement`.
+Mọi thay đổi về tồn kho đều được ghi lại trong bảng `stock_movement`.
 
-**Báº£ng nÃ y lÆ°u:**
-- Loáº¡i biáº¿n Ä‘á»™ng (`INBOUND`, `OUTBOUND`)
-- Sá»‘ lÆ°á»£ng thay Ä‘á»•i
-- Thá»i Ä‘iá»ƒm thá»±c hiá»‡n
-- NgÆ°á»i thá»±c hiá»‡n
+**Bảng này lưu:**
+- Loại biến động (`INBOUND`, `OUTBOUND`)
+- Số lượng thay đổi
+- Thời điểm thực hiện
+- Người thực hiện
 
-**Lá»£i Ã­ch:**
-- Truy váº¿t lá»‹ch sá»­ thay Ä‘á»•i
-- Phá»¥c vá»¥ kiá»ƒm toÃ¡n (audit)
-- CÃ³ thá»ƒ tÃ¡i táº¡o láº¡i tráº¡ng thÃ¡i tá»“n kho náº¿u cáº§n
+**Lợi ích:**
+- Truy vết lịch sử thay đổi
+- Phục vụ kiểm toán (audit)
+- Có thể tái tạo lại trạng thái tồn kho nếu cần
 
-### 6.3 RÃ ng buá»™c dá»¯ liá»‡u (Data Integrity)
+### 6.3 Ràng buộc dữ liệu (Data Integrity)
 
-Há»‡ thá»‘ng sá»­ dá»¥ng cÃ¡c cÆ¡ cháº¿ sau Ä‘á»ƒ Ä‘áº£m báº£o toÃ n váº¹n dá»¯ liá»‡u:
+Hệ thống sử dụng các cơ chế sau để đảm bảo toàn vẹn dữ liệu:
 
-- Foreign key giá»¯a cÃ¡c báº£ng liÃªn quan
-- Unique constraint Ä‘á»ƒ trÃ¡nh trÃ¹ng dá»¯ liá»‡u
-- Validation á»Ÿ táº§ng service trÆ°á»›c khi ghi dá»¯ liá»‡u
-- Transaction Ä‘áº£m báº£o tÃ­nh atomic
+- Foreign key giữa các bảng liên quan
+- Unique constraint để tránh trùng dữ liệu
+- Validation ở tầng service trước khi ghi dữ liệu
+- Transaction đảm bảo tính atomic
 
-Viá»‡c káº¿t há»£p kiá»ƒm tra á»Ÿ cáº£ táº§ng á»©ng dá»¥ng vÃ  cÆ¡ sá»Ÿ dá»¯ liá»‡u giÃºp giáº£m rá»§i ro sai lá»‡ch dá»¯ liá»‡u.
+Việc kết hợp kiểm tra ở cả tầng ứng dụng và cơ sở dữ liệu giúp giảm rủi ro sai lệch dữ liệu.
 
-### 6.4 Chiáº¿n lÆ°á»£c xá»­ lÃ½ Ä‘á»“ng thá»i (Concurrency Control)
+### 6.4 Chiến lược xử lý đồng thời (Concurrency Control)
 
-Äá»ƒ trÃ¡nh hiá»‡n tÆ°á»£ng **lost update** khi nhiá»u request cÃ¹ng cáº­p nháº­t tá»“n kho:
+Để tránh hiện tượng **lost update** khi nhiều request cùng cập nhật tồn kho:
 
-- Sá»­ dá»¥ng **optimistic locking** (version column)
-- Má»—i láº§n cáº­p nháº­t tá»“n kho sáº½ kiá»ƒm tra version hiá»‡n táº¡i
-- Náº¿u cÃ³ xung Ä‘á»™t, transaction sáº½ rollback
+- Sử dụng **optimistic locking** (version column)
+- Mỗi lần cập nhật tồn kho sẽ kiểm tra version hiện tại
+- Nếu có xung đột, transaction sẽ rollback
 
-CÃ¡ch tiáº¿p cáº­n nÃ y phÃ¹ há»£p vá»›i há»‡ thá»‘ng cÃ³ táº§n suáº¥t ghi trung bÃ¬nh vÃ  giÃºp:
-- Giá»¯ hiá»‡u nÄƒng tá»‘t hÆ¡n so vá»›i locking cá»©ng
-- Äáº£m báº£o dá»¯ liá»‡u khÃ´ng bá»‹ ghi Ä‘Ã¨ ngoÃ i Ã½ muá»‘n
+Cách tiếp cận này phù hợp với hệ thống có tần suất ghi trung bình và giúp:
+- Giữ hiệu năng tốt hơn so với locking cứng
+- Đảm bảo dữ liệu không bị ghi đè ngoài ý muốn
 
-> ERD Ä‘Æ°á»£c Ä‘áº·t táº¡i: `/docs/erd.png`
+> ERD được đặt tại: `/docs/erd.png`
 
 ---
 
-## 7. Chiáº¿n lÆ°á»£c xá»­ lÃ½ Concurrency
+## 7. Chiến lược xử lý Concurrency
 
-NgoÃ i optimistic locking, há»‡ thá»‘ng cÅ©ng cÃ³ thá»ƒ sá»­ dá»¥ng:
+Ngoài optimistic locking, hệ thống cũng có thể sử dụng:
 
 - **Pessimistic locking** (`SELECT FOR UPDATE`)
-- **Atomic database update** Ä‘á»ƒ trÃ¡nh race condition
-- **Distributed locking** (Redis) trong mÃ´i trÆ°á»ng scale-out
-- **Queue-based processing** thÃ´ng qua message broker (Kafka/RabbitMQ)
-- **Inventory reservation pattern** cho cÃ¡c nghiá»‡p vá»¥ cáº§n Ä‘áº£m báº£o tÃ­nh nháº¥t quÃ¡n cao
+- **Atomic database update** để tránh race condition
+- **Distributed locking** (Redis) trong môi trường scale-out
+- **Queue-based processing** thông qua message broker (Kafka/RabbitMQ)
+- **Inventory reservation pattern** cho các nghiệp vụ cần đảm bảo tính nhất quán cao
 
-> Sequence diagram Ä‘Æ°á»£c Ä‘áº·t trong thÆ° má»¥c `/docs`.
+> Sequence diagram được đặt trong thư mục `/docs`.
 
 ---
 
 
 
-Tài liệu secrets chi tiết: [docs/security-secrets.md](docs/security-secrets.md)
+T�i li?u secrets chi ti?t: [docs/security-secrets.md](docs/security-secrets.md)
 
 ## Deploy (OKE + Jenkins + Vault)
 
-Mục tiêu production hiện tại:
-- Deploy backend WMS lên Oracle Kubernetes Engine (OKE).
-- Dùng Jenkins để build/test/deploy tự động.
-- Quản lý secrets bằng Vault (không hardcode trong repo).
+M?c ti�u production hi?n t?i:
+- Deploy backend WMS l�n Oracle Kubernetes Engine (OKE).
+- D�ng Jenkins d? build/test/deploy t? d?ng.
+- Qu?n l� secrets b?ng Vault (kh�ng hardcode trong repo).
 
-Checklist triển khai theo phase:
+Checklist tri?n khai theo phase:
 - Phase 1: Dockerfile + health check + push GitHub.
 - Phase 2: Setup OKE cluster + Jenkins VM + kubectl.
-- Phase 3: Viết và apply Kubernetes manifests.
-- Phase 4: Hoàn thiện CI/CD pipeline + webhook.
-- Phase 5: Cài Vault, migrate secrets từ K8s Secret sang Vault.
-- Phase 6: Kết nối frontend (Vercel) và test E2E.
+- Phase 3: Vi?t v� apply Kubernetes manifests.
+- Phase 4: Ho�n thi?n CI/CD pipeline + webhook.
+- Phase 5: C�i Vault, migrate secrets t? K8s Secret sang Vault.
+- Phase 6: K?t n?i frontend (Vercel) v� test E2E.
 
-Runbook chi tiết:
+Runbook chi ti?t:
 - [deploy.md](deploy.md)
 
-## 9. Cài đặt & chạy dự án
+## 9. C�i d?t & ch?y d? �n
 
 ```bash
 # 1. Clone repository
 git clone https://github.com/<your-org>/<your-repo>.git
 
-# 2. Vào thư mục dự án
+# 2. V�o thu m?c d? �n
 cd wms
 
-# 3. Cấu hình Environment Variables cho môi trường dev
+# 3. C?u h�nh Environment Variables cho m�i tru?ng dev
 # JWT_SECRET, JWT_EXPIRATION, DB_USERNAME, DB_PASSWORD,
 # GOOGLE_GENAI_API_KEY, GOOGLE_GENAI_PROJECT_ID
 
-# 4. Chạy ứng dụng với profile dev
+# 4. Ch?y ?ng d?ng v?i profile dev
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 ```
-Hoặc nếu đã cài Maven global:
+Ho?c n?u d� c�i Maven global:
 
 ```bash
 mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ```
-Ứng dụng chạy tại: [http://localhost:8080](http://localhost:8080)
+?ng d?ng ch?y t?i: [http://localhost:8080](http://localhost:8080)
 
-## 10. Trá»ng tÃ¢m há»c táº­p
+## 10. Trọng tâm học tập
 
-Dá»± Ã¡n táº­p trung vÃ o cÃ¡c váº¥n Ä‘á» backend cá»‘t lÃµi:
+Dự án tập trung vào các vấn đề backend cốt lõi:
 
-- Isolation level vÃ  transaction
+- Isolation level và transaction
 - Data consistency
 - Concurrency control
-- Thiáº¿t káº¿ service layer rÃµ rÃ ng
-- TÆ° duy má»Ÿ rá»™ng há»‡ thá»‘ng
+- Thiết kế service layer rõ ràng
+- Tư duy mở rộng hệ thống
 
 ---
 
-## 11. Nháº­t kÃ½ nÄƒng cáº¥p há»‡ thá»‘ng (Cháº·ng Ä‘Æ°á»ng WMS Doanh Nghiá»‡p)
+## 11. Nhật ký năng cấp hệ thống (Chặng đường WMS Doanh Nghiệp)
 
-Dá»± Ã¡n Ä‘Ã£ tráº£i qua 7 Phase Ä‘á»ƒ tá»«ng bÆ°á»›c giáº£i quyáº¿t cÃ¡c bÃ i toÃ¡n hÃ³c bÃºa nháº¥t cá»§a Production:
-1. **Core Entities**: Inbound, Outbound, Inventory + Stock Movement Log (Audit Trail) hoÃ n chá»‰nh.
-2. **Concurrency Má»©c Ä‘á»™ CSDL**: Ãp dá»¥ng Optimistic Locking (`@Version`) Ä‘á»ƒ khÃ³a cá»©ng hiá»‡n tÆ°á»£ng Lost Update.
-3. **Data Security**: XÃ¢y dá»±ng mÃ ng lÆ°á»›i Security RBAC (PhÃ¢n quyá»n JWT). 
-4. **Performance**: Thiáº¿t láº­p Redis Cache xua tan ná»—i lo cho cÃ¡c báº£ng Read-Heavy (Product/Warehouse).
-5. **Base Code Standards**: TÃ­ch há»£p Global Exception Handler bÃ³c tÃ¡ch lá»—i DTO Validation sang chuáº©n Response.
-6. **Data Integrity (No Hard Delete)**: PhÃ¡ lá»‡nh xÃ³a cá»©ng. RÃ o cháº¯n SQL báº±ng cÆ¡ cháº¿ Soft Delete.
-7. **Scale to Enterprise Level (Má»›i nháº¥t)**:
-   - **Luá»“ng áº¢o (Java 21 Virtual Threads)**: QuÃ©t sáº¡ch Tomcat Thread truyá»n thá»‘ng, há»— trá»£ chá»‹u táº£i lÃªn tá»›i 10,000+ Concurrent Requests (chuáº©n thiáº¿t káº¿ á»©ng dá»¥ng System Design) vá»›i RAM tiáº¿t kiá»‡m nháº¥t.
-   - **DB Connection Pool Manager**: Cá»©u há»™ DB khÃ´ng thá»Ÿ gáº¥p báº±ng hÃ ng rÃ o Hikari (Max-Pool-Size).
-   - **Spring Data Pagination**: Báº£o vá»‡ tÃ i nguyÃªn, cáº¥m tiá»‡t truy váº¥n `List<T> findAll()`, chuáº©n hÃ³a xuáº¥t hÃ ng loáº¡t báº±ng `Page<T>` Ä‘á»ƒ chá»‘ng Memory Leak.
+Dự án đã trải qua 7 Phase để từng bước giải quyết các bài toán hóc búa nhất của Production:
+1. **Core Entities**: Inbound, Outbound, Inventory + Stock Movement Log (Audit Trail) hoàn chỉnh.
+2. **Concurrency Mức độ CSDL**: Áp dụng Optimistic Locking (`@Version`) để khóa cứng hiện tượng Lost Update.
+3. **Data Security**: Xây dựng màng lưới Security RBAC (Phân quyền JWT). 
+4. **Performance**: Thiết lập Redis Cache xua tan nỗi lo cho các bảng Read-Heavy (Product/Warehouse).
+5. **Base Code Standards**: Tích hợp Global Exception Handler bóc tách lỗi DTO Validation sang chuẩn Response.
+6. **Data Integrity (No Hard Delete)**: Phá lệnh xóa cứng. Rào chắn SQL bằng cơ chế Soft Delete.
+7. **Scale to Enterprise Level (Mới nhất)**:
+   - **Luồng Ảo (Java 21 Virtual Threads)**: Quét sạch Tomcat Thread truyền thống, hỗ trợ chịu tải lên tới 10,000+ Concurrent Requests (chuẩn thiết kế ứng dụng System Design) với RAM tiết kiệm nhất.
+   - **DB Connection Pool Manager**: Cứu hộ DB không thở gấp bằng hàng rào Hikari (Max-Pool-Size).
+   - **Spring Data Pagination**: Bảo vệ tài nguyên, cấm tiệt truy vấn `List<T> findAll()`, chuẩn hóa xuất hàng loạt bằng `Page<T>` để chống Memory Leak.
 
 ---
 
-## 12. HÆ°á»›ng phÃ¡t triá»ƒn trong tÆ°Æ¡ng lai
+## 12. Hướng phát triển trong tương lai
 
-- [ ] PhÃ¢n tÃ¡n hÃ³a Module (Microservices DB per Service)
-- [ ] ThÃªm idempotency cho tÃ¡c vá»¥ Outbound
-- [ ] Ghi log báº¥t Ä‘á»“ng bá»™ báº±ng Kafka hoáº·c RabbitMQ
-- [ ] TrÃ¬nh quáº£n lÃ½ sÆ¡ Ä‘á»“ Database Version Control (Sá»­ dá»¥ng Flyway)
+- [ ] Phân tán hóa Module (Microservices DB per Service)
+- [ ] Thêm idempotency cho tác vụ Outbound
+- [ ] Ghi log bất đồng bộ bằng Kafka hoặc RabbitMQ
+- [ ] Trình quản lý sơ đồ Database Version Control (Sử dụng Flyway)
+
+
 
 
 
