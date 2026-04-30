@@ -26,7 +26,7 @@ public class InboundController {
 
     // tạo phiếu nhập kho
     @PostMapping
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER','ROLE_USER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF', 'ROLE_VIEWER')")
     public ResponseEntity<ApiResponse<InboundResponse>> createOrder(@Valid @RequestBody InboundRequest request) {
         InboundResponse inboundResponse = inboundService.createOrder(request);
         // Trả về 201 Created kèm dữ liệu đã bọc trong ApiResponse
@@ -37,7 +37,7 @@ public class InboundController {
 
     // Hoan thanh phieu nhap kho
     @PatchMapping("/{orderId}/complete")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER','ROLE_USER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF', 'ROLE_VIEWER')")
     public ResponseEntity<ApiResponse<InboundResponse>> completeOrder(
             @PathVariable Long orderId, @RequestBody Long zoneId) {
         InboundResponse response = inboundService.completeOrder(orderId, zoneId);
@@ -46,7 +46,7 @@ public class InboundController {
 
     // Huy phieu nhap kho
     @PatchMapping("/{orderId}/cancel")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     public ResponseEntity<ApiResponse<InboundResponse>> cancelOrder(@PathVariable Long orderId) {
         InboundResponse response = inboundService.cancelOrder(orderId);
         return ResponseEntity.ok(ApiResponse.success(response));

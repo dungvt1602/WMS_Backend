@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Role entity defining authority levels (e.g., ROLE_ADMIN, ROLE_USER).
+ * Role entity defining authority levels (e.g., ROLE_ADMIN, ROLE_STAFF, ROLE_VIEWER).
  */
 @Entity
 @Table(name = "auth_role")

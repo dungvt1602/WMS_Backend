@@ -25,7 +25,7 @@ public class DataSeeder implements CommandLineRunner {
         log.info("Starting data seeder...");
 
         // Tạo các quyền dữ liệu
-        Set<String> rolesToSeeds = Set.of("ROLE_ADMIN", "ROLE_USER", "ROLE_MANAGER");
+        Set<String> rolesToSeeds = Set.of("ROLE_ADMIN", "ROLE_STAFF", "ROLE_VIEWER");
 
         rolesToSeeds.forEach(rolename -> {
             // kiem tra co ton tai rolename chưa, chưa có thì tạo mới luôn

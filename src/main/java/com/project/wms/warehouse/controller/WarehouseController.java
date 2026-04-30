@@ -20,7 +20,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/warehouses")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+@PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
 public class WarehouseController {
 
     private final WarehouseService warehouseService;
@@ -47,7 +47,7 @@ public class WarehouseController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')") // phải có quyền admin thì mới được update
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')") // phải có quyền admin thì mới được update
     public ResponseEntity<ApiResponse<WarehouseResponse>> updateWarehouse(
             @PathVariable Long id,
             @Valid @RequestBody WarehouseRequest request) {
@@ -55,7 +55,7 @@ public class WarehouseController {
     }
 
     @DeleteMapping("/{code}")
-    @PreAuthorize("hasRole('ADMIN')") // phải có quyền admin thì mới được xóa
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')") // phải có quyền admin thì mới được xóa
     public ResponseEntity<ApiResponse<Void>> deleteWarehouse(@PathVariable String code) {
         warehouseService.deleteWarehouse(code);
         return ResponseEntity.ok(ApiResponse.success(null));
@@ -63,7 +63,7 @@ public class WarehouseController {
 
     // Endpoint thử thách: PATCH để disable kho bằng mã code
     @PatchMapping("/{code}/disable")
-    @PreAuthorize("hasRole('ADMIN')") // phải có quyền admin thì mới có thể disable
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')") // phải có quyền admin thì mới có thể disable
     public ResponseEntity<ApiResponse<Void>> disableWarehouse(@PathVariable String code) {
         warehouseService.disableWarehouse(code);
         return ResponseEntity.ok(ApiResponse.success(null));

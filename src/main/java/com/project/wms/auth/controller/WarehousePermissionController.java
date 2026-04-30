@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/admin/warehouse-permissions")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ROLE_ADMIN')")  // Toàn bộ controller chỉ ADMIN mới vào được
+@PreAuthorize("hasAuthority('ROLE_ADMIN')")  // Toàn bộ controller chỉ ADMIN mới vào được
 public class WarehousePermissionController {
 
     private final AdminPermissionService warehousePermissionService;

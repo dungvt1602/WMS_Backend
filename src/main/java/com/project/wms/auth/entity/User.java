@@ -47,8 +47,21 @@ public class User extends BaseEntity implements UserDetails {
      */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (roles == null || roles.isEmpty()) {
+            return Set.of();
+        }
+
         return roles.stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toSet());
+                .map(role -> new SimpleGrantedAuthority(normalizeAuthority(role.getName())))
+                .collect(Collectors.toSet());
+    }
+
+    private String normalizeAuthority(String roleName) {
+        return switch (roleName) {
+            case "ROLE_USER" -> "ROLE_VIEWER";
+            case "ROLE_MANAGER" -> "ROLE_STAFF";
+            default -> roleName;
+        };
     }
 
     // --- UserDetails Interface Implementation ---

@@ -33,7 +33,8 @@ public class AuthService {
     @Transactional
     public AuthResponse register(RegisterRequest request) {
 
-        Role userRole = roleRepository.findByName("ROLE_USER")
+        Role userRole = roleRepository.findByName("ROLE_VIEWER")
+                .or(() -> roleRepository.findByName("ROLE_USER"))
                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
 
         User user = new User();

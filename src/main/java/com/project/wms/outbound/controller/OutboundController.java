@@ -28,7 +28,7 @@ public class OutboundController {
 
     // Tạo phiếu xuất kho
     @PostMapping
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER','ROLE_USER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF', 'ROLE_VIEWER')")
     public ResponseEntity<ApiResponse<OutboundResponse>> createOrder(@Valid @RequestBody OutboundRequest request) {
         OutboundResponse outboundResponse = outboundService.createOrder(request);
         // Trả về 201 Created kèm dữ liệu đã bọc trong ApiResponse
@@ -39,7 +39,7 @@ public class OutboundController {
 
     // Hoàn thành phiếu xuất kho
     @PatchMapping("/{orderId}/complete")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     public ResponseEntity<ApiResponse<OutboundResponse>> completeOrder(
             @PathVariable Long orderId, @RequestBody Long userId) {
         OutboundResponse response = outboundCompleteService.completeOrder(orderId, userId);
@@ -48,7 +48,7 @@ public class OutboundController {
 
     // Hủy phiếu xuất kho
     @PatchMapping("/{orderId}/cancel")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     public ResponseEntity<ApiResponse<OutboundResponse>> cancelOrder(@PathVariable Long orderId) {
         OutboundResponse response = outboundService.cancelOrder(orderId);
         return ResponseEntity.ok(ApiResponse.success(response));
