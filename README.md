@@ -196,6 +196,24 @@ NgoÃ i optimistic locking, há»‡ thá»‘ng cÅ©ng cÃ³ thá»ƒ sá»­
 
 Tài liệu secrets chi tiết: [docs/security-secrets.md](docs/security-secrets.md)
 
+## Deploy (OKE + Jenkins + Vault)
+
+Mục tiêu production hiện tại:
+- Deploy backend WMS lên Oracle Kubernetes Engine (OKE).
+- Dùng Jenkins để build/test/deploy tự động.
+- Quản lý secrets bằng Vault (không hardcode trong repo).
+
+Checklist triển khai theo phase:
+- Phase 1: Dockerfile + health check + push GitHub.
+- Phase 2: Setup OKE cluster + Jenkins VM + kubectl.
+- Phase 3: Viết và apply Kubernetes manifests.
+- Phase 4: Hoàn thiện CI/CD pipeline + webhook.
+- Phase 5: Cài Vault, migrate secrets từ K8s Secret sang Vault.
+- Phase 6: Kết nối frontend (Vercel) và test E2E.
+
+Runbook chi tiết:
+- [deploy.md](deploy.md)
+
 ## 9. Cài đặt & chạy dự án
 
 ```bash

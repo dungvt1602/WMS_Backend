@@ -1,9 +1,11 @@
 package com.project.wms.auth.service;
 
+import com.project.wms.auth.dto.AdminPermissionAuditEvent;
 import com.project.wms.auth.dto.PermissionWarehouseDTO.*;
 import com.project.wms.auth.entity.AuthPermission;
 import com.project.wms.auth.entity.PermissionWarehouse;
 import com.project.wms.auth.entity.User;
+import com.project.wms.auth.enums.AdminPermissionAuditAction;
 import com.project.wms.auth.repository.AuthPermisionRepository;
 import com.project.wms.auth.repository.PermissionWarehouseRepository;
 import com.project.wms.auth.repository.UserRepository;
@@ -12,10 +14,12 @@ import com.project.wms.warehouse.entity.WarehouseEntity;
 import com.project.wms.warehouse.repository.WarehouseRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -26,6 +30,7 @@ public class AdminPermissionService {
     private final UserRepository userRepository;
     private final WarehouseRepository warehouseRepository;
     private final AuthPermisionRepository authPermisionRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     // ─────────────────────────────────────────────────────────────────────────
     // Grant
@@ -56,6 +61,7 @@ public class AdminPermissionService {
                     .build();
             //Luu entity vao repository
             PermissionWarehouse newper = permissionWarehouseRepository.save(permision);
+            publishAuditEvent(adminId, user, warehouse, permission, AdminPermissionAuditAction.GRANT);
             log.info("Permission warehouse succesfully granted: " + request.userId());
             return mapToResponse(newper);
 
@@ -87,6 +93,8 @@ public class AdminPermissionService {
                                 request.permissionCode(), request.userId(), request.warehouseId())));
 
         permissionWarehouseRepository.delete(existing);
+        publishAuditEvent(adminId, existing.getUser(), existing.getWarehouse(), existing.getPermission(),
+                AdminPermissionAuditAction.REVOKE);
 
         log.info("[PERMISSION] REVOKED: userId={} warehouseId={} permission={} by adminId={}",
                 request.userId(), request.warehouseId(), request.permissionCode(), adminId);
@@ -135,6 +143,30 @@ public class AdminPermissionService {
                 p.getGrantBy(),
                 p.getGrantAt()
         );
+    }
+
+    private void publishAuditEvent(Long adminId,
+                                   User targetUser,
+                                   WarehouseEntity warehouse,
+                                   AuthPermission permission,
+                                   AdminPermissionAuditAction action) {
+        String adminUsername = userRepository.findById(adminId)
+                .map(User::getUsername)
+                .orElse("unknown-admin");
+
+        eventPublisher.publishEvent(new AdminPermissionAuditEvent(
+                UUID.randomUUID(),
+                action,
+                adminId,
+                adminUsername,
+                targetUser.getId(),
+                targetUser.getUsername(),
+                warehouse.getId(),
+                warehouse.getName(),
+                permission.getCode(),
+                permission.getDescription(),
+                null
+        ));
     }
 
 
