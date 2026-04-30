@@ -29,12 +29,6 @@ Dự án được xây dựng với định hướng phát triển từ Junior l
 - Lưu lịch sử biến động tồn kho
 - Xác thực và phân quyền người dùng
 
-**Không bao gồm:**
-
-- Giao diện frontend
-- Microservices
-- Hệ thống phân tán
-
 ---
 
 ## 3. Chức năng chính
@@ -95,7 +89,7 @@ Hệ thống hỗ trợ 3 vai trò chính:
 | **Staff**  | Thực hiện nhập/xuất kho, xem tồn kho                                       |
 | **Viewer** | Chỉ xem thông tin tồn kho                                                  |
 
-**Phân quyền theo kho(RBAC + WarehouseId):**
+**Phân quyền theo kho  (RBAC + WarehouseId):**
 
 - Người dùng chỉ được thao tác trên các kho được gán quyền
 - Admin có thể được cấp quyền toàn bộ kho hoặc theo từng kho cụ thể
@@ -126,7 +120,7 @@ Phân quyền được kiểm tra tại service hoặc security layer trước k
 Hệ thống được thiết kế theo mô hình **Modular Monolith**:
 
 - Triển khai dưới dạng một ứng dụng duy nhất
-- Chia module theo domain: `auth`, `inventory`, `inbound`, `outbound`
+- Chia module theo domain: `auth`, `inventory`, `inbound`, `outbound` ....
 - Phân tách rõ ràng service layer
 - Sử dụng ràng buộc database để đảm bảo tính toàn vẹn dữ liệu
 
@@ -248,7 +242,7 @@ Runbook chi tiết:
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/<your-org>/<your-repo>.git
+git clone https://github.com/dungvt1602/WMS_Backend.git
 
 # 2. Vào thư mục dự án
 cd wms
