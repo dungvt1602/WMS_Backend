@@ -38,13 +38,13 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
-        
+
         <!-- Security: Cung cấp tính năng xác thực và phân quyền (RBAC) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
-        
+
         <!-- JWT: Bộ thư viện dùng để tạo, giải mã và xác thực JSON Web Token -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
@@ -63,19 +63,19 @@
             <version>0.12.6</version>
             <scope>runtime</scope>
         </dependency>
-        
+
         <!-- Web: Xây dựng RESTful API (hỗ trợ tự động nhúng Tomcat, Spring MVC) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        
+
         <!-- Validation: Xác thực dữ liệu đầu vào DTO sử dụng @NotNull, @Min, @Valid... -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
-        
+
         <!-- AI: Hỗ trợ kết nối với các Model AI GenAI của Google (Gemini) -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
@@ -96,14 +96,26 @@
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
-        
+
+        <!-- Flyway core -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+
+        <!-- Bắt buộc với PostgreSQL + Flyway 10+ -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+        </dependency>
+
         <!-- PostgreSQL Driver: Driver cho phép ứng dụng kết nối và nói chuyện với Database PostgreSQL -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
-        
+
         <!-- AI Docker: Plugin hỗ trợ setup AI model qua Docker Compose -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
@@ -111,21 +123,21 @@
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
-        
+
         <!-- Lombok: Trình sinh code tự động chống mỏi tay (Sinh ra @Getter, @Setter, @Builder...) -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
-        
+
         <!-- Testing: Bộ thư viện cốt lõi viết Unit Test và Integration Test (JUnit, Mockito...) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        
+
         <!-- Security Test: Thư viện hỗ trợ giả lập User, Token để test các hàm bảo mật @PreAuthorize -->
         <dependency>
             <groupId>org.springframework.security</groupId>
@@ -143,15 +155,15 @@
         <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
-        </dependency> 
+        </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-vault-config</artifactId>
         </dependency>
         <dependency>
-    <groupId>org.apache.commons</groupId>
-    <artifactId>commons-pool2</artifactId>
-</dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
+        </dependency>
 
 
     </dependencies>
@@ -216,6 +228,29 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+
+            <!-- THÊM VÀO ĐÂY -->
+            <plugin>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.postgresql</groupId>
+                        <artifactId>postgresql</artifactId>
+                        <version>42.7.3</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <url>jdbc:postgresql://localhost:5432/wms</url>
+                    <user>${env.DB_USERNAME}</user>
+                    <password>${env.DB_PASSWORD}</password>
+                    <locations>
+                        <location>classpath:db/migration</location>
+                    </locations>
+                    <baselineVersion>1</baselineVersion>
+                    <cleanDisabled>true</cleanDisabled>
+                </configuration>
             </plugin>
         </plugins>
     </build>
