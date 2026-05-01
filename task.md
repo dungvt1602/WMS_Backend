@@ -1,4 +1,4 @@
-﻿# WMS Project Implementation Checklist
+# WMS Project Implementation Checklist
 
 - [x] **Phase 1: Core Infrastructure & Shared Setup**
     - [x] Setup `BaseEntity` with JPA Auditing.
@@ -73,10 +73,10 @@
 [//]: # (    - [ ] Bổ sung test permission theo kho (allow/deny theo role + warehouse).)
 [//]: # (    - [ ] Bổ sung test Outbox Dispatcher + retry/dead flow.)
 
-- [ ] **Phase 13: Database Migration & Data Safety**
-    - [ ] Tích hợp `Flyway` hoặc `Liquibase`.
-    - [ ] Tắt `ddl-auto=update` ở môi trường production.
-    - [ ] Chuẩn hóa index/unique constraint cho bảng lớn (`inv_`, `outbox_`, `auth_` mapping).
+- [/] **Phase 13: Database Migration & Data Safety**
+    - [x] Tích hợp `Flyway`: `V1__baseline_schema.sql` (full pg_dump) + `V2__missingindex_add.sql` (15 index).
+    - [x] Tắt `ddl-auto=update` → chuyển sang `validate`. Flyway toàn quyền quản lý schema.
+    - [x] Chuẩn hóa index/unique constraint cho bảng lớn (`inv_`, `outbox_`, `auth_` mapping).
     - [ ] Thiết kế và kiểm thử backup/restore định kỳ.
 
 - [ ] **Phase 14: Security Hardening**
