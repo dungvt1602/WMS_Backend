@@ -151,6 +151,13 @@
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
 
+
+        <!--  Spring Boot Actuator: Dùng để quản lí docker container tốn bao nhiêu % máy -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
         <!-- Kafka: Xương sống của hệ thống nhắn tin Queue -->
         <dependency>
             <groupId>org.springframework.kafka</groupId>
@@ -225,6 +232,7 @@
                             <installHooks>
                                 <pre-commit>git-hooks/pre-commit</pre-commit>
                             </installHooks>
+                            <skip>${skipGitHooks}</skip>
                         </configuration>
                     </execution>
                 </executions>
