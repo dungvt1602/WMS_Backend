@@ -1,0 +1,22 @@
+stages:
+  - build-docker
+  - deploy
+
+
+variables:
+  GCP_PROJECT_ID: $GCP_PROJECT_ID                          # Thay bằng GCP project ID của bạn (hoặc set trong GitLab CI/CD Variables)
+  GCP_ARTIFACT_REGISTRY: $GCP_ARTIFACT_REGISTRY            # VD: us-central1-docker.pkg.dev/your-project/your-repo
+  IMAGE_NAME: "$GCP_ARTIFACT_REGISTRY/wms-backend"
+  IMAGE_TAG: $IMAGE_TAG                                    # Nhận từ GitHub trigger (git commit SHA)
+  HELM_RELEASE_NAME: "wms-app"
+  HELM_NAMESPACE: "production"
+  GKE_CLUSTER_NAME: "wms-cluster"                         # Thay bằng tên cluster GKE của bạn
+  GKE_ZONE: "us-central1-a"
+
+
+  # ==================== 1. Build & Push Docker Image ====================
+
+  build-and-push:
+    stage: build-docker
+    image: google/cloud-sdk:slim
+
